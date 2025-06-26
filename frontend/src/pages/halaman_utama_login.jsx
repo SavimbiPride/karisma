@@ -1,85 +1,104 @@
 import React, { useState } from 'react';
+import { Navigate } from 'react-router-dom';
 
 const instructors = [
   {
     id: 1,
-    name: 'Profil Instruktur',
-    specialty: 'Desain Grafis',
-    description: (
-      <>
-        Seorang profesional desain grafis dengan pengalaman mengajar 1 tahun. Dengan latar belakang pendidikan jurusan Desain Komunikasi Visual (DKV).
-      </>
-    ),
+    name: 'Profil Instruktur Desain Grafis',
+    desc: 'Seorang profesional desain grafis dengan pengalaman mengajar 1 tahun. Dengan latar belakang pendidikan jurusan Desain Komunikasi Visual (DKV).',
     photo: 'mas ipan.png',
-    alt: 'Portrait photo of instructor specialized in graphic design',
   },
   {
     id: 2,
-    name: 'Profil Instruktur',
-    specialty: 'Desain Grafis',
-    description: (
-      <>
-        Bertugas memberikan ilmu yang relevan seperti Desain Grafis, Video Editing dan Ilustrasi menggunakan software Adobe Creative Suite.
-      </>
-    ),
+    name: 'Profil Instruktur Desain Grafis',
+    desc: 'Seorang profesional desain grafis dengan pengalaman mengajar 1 tahun. Dengan latar belakang pendidikan jurusan Desain Komunikasi Visual (DKV).',
     photo: 'mas ipan.png',
-    alt: 'Portrait photo of instructor specialized in graphic design',
+  },
+  {
+    id: 3,
+    name: 'Profil Instruktur Desain Grafis',
+    desc: 'Seorang profesional desain grafis dengan pengalaman mengajar 1 tahun. Dengan latar belakang pendidikan jurusan Desain Komunikasi Visual (DKV).',
+    photo: 'mas ipan.png',
+  },
+  {
+    id: 4,
+    name: 'Profil Instruktur Desain Grafis',
+    desc: 'Seorang profesional desain grafis dengan pengalaman mengajar 1 tahun. Dengan latar belakang pendidikan jurusan Desain Komunikasi Visual (DKV).',
+    photo: 'mas ipan.png',
   },
 ];
 
 export default function HomePage() {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [startIndex, setStartIndex] = useState(0);
 
-  const nextInstructor = () => {
-    setCurrentIndex((prev) => (prev === instructors.length - 1 ? 0 : prev + 1));
+  const handleNext = () => {
+    if (startIndex + 2 < instructors.length) {
+      setStartIndex(startIndex + 1);
+    }
   };
+
+  const handlePrev = () => {
+    if (startIndex > 0) {
+      setStartIndex(startIndex - 1);
+    }
+  };
+
+  const visibleInstructors = instructors.slice(startIndex, startIndex + 2);
+
 
   return (
     <>
       <main className="w-full px-4 py-12" style={{ backgroundColor: '#000045' }}>
         {/* Hero Section */}
         <section className="grid md:grid-cols-2 gap-8 items-start">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
-              Asah Skillmu secara<br />Interaktif di Kelas
-            </h1>
+        <div>
+          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4 leading-tight">
+            Asah Skillmu secara<br />Interaktif di Kelas
+          </h1>
 
-            {/* Tombol Webinar Reguler */}
-            <button className="bg-gradient-to-r from-purple-500 to-indigo-700 text-white font-semibold py-2 px-6 rounded-xl shadow-md mb-4">
-              WEBINAR REGULER
+          <h4 className="bg-gradient-to-r from-purple-500 to-indigo-700 text-white font-semibold py-2 px-6 rounded-xl mb-4 w-fit">
+            WEBINAR REGULER
+          </h4>
+
+          <p className="text-white mb-6">
+            Program kelas reguler merupakan pelatihan online secara intensif dan live bersama dengan mentor berpengalaman. Materi Kursus dirancang secara terstruktur dari dasar hingga lanjut dengan standar industri terkini.
+          </p>
+
+          <ul className="grid grid-cols-2 gap-y-2 gap-x-6 text-white text-sm mb-6">
+            <li className="flex items-center gap-2">
+              <span className="material-icons text-white">check_circle</span>
+              Belajar nyaman dimana aja
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="material-icons text-white">check_circle</span>
+              Pelatihan siap kerja
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="material-icons text-white">check_circle</span>
+              Instruktur berpengalaman
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="material-icons text-white">check_circle</span>
+              Mendapat e-sertifikat
+            </li>
+          </ul>
+
+          {/* Tombol di kiri */}
+          <div className="flex gap-4">
+            <button onClick={()=> Navigate('/kelas_saya')} className="bg-gradient-to-r from-purple-500 to-indigo-700 text-white font-semibold py-2 px-6 rounded-xl mb-4 w-fit">
+              Kelas saya
             </button>
-
-            {/* Deskripsi */}
-            <p className="text-white mb-6">
-              Program kelas reguler merupakan pelatihan online secara intensif dan live bersama dengan mentor berpengalaman. Materi Kursus dirancang secara
-              terstruktur dari dasar hingga lanjut dengan standar industri terkini.
-            </p>
-
-            {/* List dalam 2 kolom */}
-            <ul className="grid grid-cols-2 gap-y-2 gap-x-6 text-white text-sm">
-              <li className="flex items-center gap-2">
-                <span className="material-icons text-white">check_circle</span>
-                Belajar nyaman dimana aja
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="material-icons text-white">check_circle</span>
-                Pelatihan siap kerja
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="material-icons text-white">check_circle</span>
-                Instruktur berpengalaman
-              </li>
-              <li className="flex items-center gap-2">
-                <span className="material-icons text-white">check_circle</span>
-                Mendapat e-sertifikat
-              </li>
-            </ul>
-
+            <button onClick={()=> Navigate('/daftar_kelas')} className="bg-gradient-to-r from-purple-500 to-indigo-700 text-white font-semibold py-2 px-6 rounded-xl mb-4 w-fit">
+              Daftar kelas
+            </button>
           </div>
-          <div className="flex justify-end">
-            <img src="hero-image.png" alt="Interactive learning illustration" className="w-[300px] md:w-[400px] mx-auto rounded-xl shadow-md" />
-          </div>
-        </section>
+        </div>
+
+        {/* Gambar di kanan */}
+        <div className="flex justify-end">
+          <img src="hero-image.png" alt="Interactive learning illustration" className="w-[300px] md:w-[400px] mx-auto rounded-xl shadow-md" />
+        </div>
+      </section>
 
         {/* Materi Pelatihan */}
         <section className="py-10 px-4 text-center">
@@ -97,29 +116,82 @@ export default function HomePage() {
             </div>
           </div>
         </section>
-
-
         <section className="mt-12 px-4">
-          <div className="bg-[#5b5b77] rounded-3xl p-6 flex items-center gap-4 overflow-x-auto">
-            <button className="text-white bg-white/20 rounded-full p-2">
-              <span className="material-icons">chevron_left</span>
-            </button>
-            {[1, 2, 3].map((_, index) => (
-              <div key={index} className="bg-gradient-to-b from-indigo-500 to-indigo-700 text-white rounded-2xl p-4 min-w-[240px] shadow-md">
-                <div class="grid grid-flow-col grid-rows-3 gap-4">
-                  <div class="row-span-3"><img src="mas ipan.png" className="w-32 h-32 rounded-b-2xl mx-auto object-cover mb-4" /></div>
-                  <div class="col-span-2"><h4 className="text-center font-bold mb-2">Profil Instruktur Desain Grafis</h4></div>
-                  <div class="col-span-2 row-span-2"><p className="text-sm break-words">
-                    Seorang profesional desain grafis dengan pengalaman mengajar 1 tahun. Dengan latar belakang pendidikan jurusan Desain Komunikasi Visual (DKV).
-                  </p></div>
-                </div>
-              </div>
-            ))}
-            <button className="text-white bg-white/20 rounded-full p-2">
-              <span className="material-icons">chevron_right</span> 
-            </button>
+          <div className="bg-[#5b5b77] rounded-3xl p-8 flex flex-col md:flex-row items-center justify-center gap-10 shadow-md">
+            {/* Gambar Maskot */}
+            <img
+              src="/1-24.png" // ganti dengan path gambar robot kamu
+              alt="Robot Maskot"
+              className="w-40 md:w-52 h-auto object-contain"
+            />
+
+            {/* Gambar Cover Guidebook */}
+            <img
+              src="/guidebook.png" // ganti dengan path cover guidebook
+              alt="Guide Book Cover"
+              className="w-44 md:w-60 h-auto rounded-xl shadow-lg"
+            />
+
+            {/* Deskripsi dan Tombol */}
+            <div className="text-white max-w-md text-center md:text-left">
+              <h4 className="font-bold text-2xl mb-3">Guide Book</h4>
+              <p className="text-base leading-relaxed mb-5">
+                Panduan praktis yang dirancang untuk membantu peserta dalam memahami pelaksanaan pelatihan.
+              </p>
+              <a
+                href="/file/guidebook.pdf" // sesuaikan path file PDF
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-block bg-white text-[#0A0A57] font-semibold px-5 py-2 rounded-lg shadow hover:bg-gray-100 transition duration-200"
+              >
+                Buka Guide Book
+              </a>
+            </div>
           </div>
         </section>
+
+        <section className="mt-12 px-4">
+          <div className="bg-[#5b5b77] rounded-3xl p-6 flex items-center gap-4 justify-center shadow-md overflow-hidden">
+
+            <button onClick={handlePrev} className="text-white bg-white/20 rounded-full p-2 disabled:opacity-50"disabled={startIndex === 0}
+        >
+          <span className="material-icons">chevron_left</span>
+        </button>
+
+        {/* Card */}
+        <div className="flex gap-4 overflow-hidden">
+  {visibleInstructors.map((ins) => (
+    <div
+      key={ins.id}
+      className="bg-gradient-to-b from-indigo-500 to-indigo-700 text-white rounded-2xl p-4 w-[400px] shadow-md flex items-start gap-4"
+    >
+      {/* Foto kiri */}
+      <img
+        src={ins.photo}
+        alt={ins.name}
+        className="w-70 h-70 rounded-xl object-cover"
+      />
+
+      {/* Info pengajar */}
+      <div className="flex flex-col">
+        <h4 className="font-bold text-lg mb-1">{ins.name}</h4>
+        <p className="text-sm leading-snug">{ins.desc}</p>
+      </div>
+    </div>
+  ))}
+</div>
+
+
+        {/* Tombol kanan */}
+        <button
+          onClick={handleNext}
+          className="text-white bg-white/20 rounded-full p-2 disabled:opacity-50"
+          disabled={startIndex + 3 >= instructors.length}
+        >
+          <span className="material-icons">chevron_right</span>
+        </button>
+      </div>
+    </section>
         
         {/* CTA Section */}
         <section className="relative mt-16 flex justify-center items-center">

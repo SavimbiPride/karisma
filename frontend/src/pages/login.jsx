@@ -1,84 +1,127 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import NotifikasiCustom from '../components/NotifikasiCustom';
 
-function Login() {
-    return (
-        <div className="flex h-screen w-screen font-sans relative">
-            {/* Logo Kiri Atas */}
-            <div className="absolute top-6 left-6 z-10">
-                <img
-                    src="/Logo Karisma Academy.png"
-                    alt="Logo"
-                    className="h-12 w-auto"
-                />
-            </div>
+export default function Login() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [notif, setNotif] = useState({ show: false, message: '', onConfirm: null });
+  const navigate = useNavigate();
 
-            {/* Kiri - Form Login */}
-            <div className="w-full md:w-1/2 bg-white p-10 flex flex-col justify-center h-screen">
-                <h1 className="text-5xl md:text-6xl lg:text-7xl font-bold text-[#0A0A57] mb-8 text-center">
-                    Login
-                </h1>
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      const res = await axios.post('http://localhost:5000/api/login', { email, password });
 
-                <form className="space-y-4">
-                    <div className="relative w-full">
-                        <input
-                            type="email"
-                            id="email"
-                            placeholder=" "
-                            className="text-black peer w-full border-2 border-[#0A0A57] rounded-xl px-4 pt-6 pb-2 focus:outline-none focus:ring-2 focus:ring-[#0A0A57]"
-                        />
-                        <label
-                            htmlFor="email"
-                            className="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-gray-500"
-                        >
-                            Email
-                        </label>
-                    </div>
-                    <div className="relative w-full">
-                        <input
-                            type="password"
-                            id="password"
-                            placeholder=" "
-                            className="text-black peer w-full border-2 border-[#0A0A57] rounded-xl px-4 pt-6 pb-2 focus:outline-none focus:ring-2 focus:ring-[#0A0A57]"
-                        />
-                        <label
-                            htmlFor="password"
-                            className="absolute left-4 top-2 text-gray-500 text-sm transition-all peer-placeholder-shown:top-4 peer-placeholder-shown:text-base peer-placeholder-shown:text-gray-400 peer-focus:top-2 peer-focus:text-sm peer-focus:text-gray-500"
-                        >
-                            Password
-                        </label>
-                    </div>
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('username', res.data.username);
+      localStorage.setItem('role', res.data.role);
+      localStorage.setItem('foto', res.data.foto);
 
-                    <div className="text-lg text-[#0A0A57] cursor-pointer hover:underline">
-                        Lupa kata sandi anda?
-                    </div>
+      if (res.data.role === 'admin') {
+        navigate('/dashboard');
+      } else {
+        navigate('/home');
+      }
 
-                    <div className="flex justify-end">
-                        <button
-                            type="submit"
-                            className="bg-[#0A0A57] text-white font-semibold px-6 py-2 rounded-lg"
-                        >
-                            Log In
-                        </button>
-                    </div>
-                </form>
+      setNotif({
+        show: true,
+        message: 'Login berhasil!',
+        onConfirm: () => {
+          setNotif({ ...notif, show: false });
+          navigate('/home');
+        }
+      });
+    } catch (err) {
+      setNotif({
+        show: true,
+        message: 'Email atau password salah!',
+        onConfirm: () => setNotif({ ...notif, show: false })
+      });
+    }
+  };
 
-                <div className="mt-4 text-lg text-center">
-                    <span className="font-bold text-[#0A0A57]">Belum punya akun? </span>
-                    <Link to="/register" className="text-[#0A0A57] underline cursor-pointer">Buat akun sekarang</Link>
-                </div>
-            </div>
 
-            {/* Kanan - Brand */}
-            <div className="hidden md:flex w-1/2 bg-[#0A0A57] text-white items-center justify-center flex-col px-6">
-                <img
-                    src="/Logo Karisma 2.png"
-                    alt="Karisma Logo"
-                    className="w-[550px] h-auto object-contain mb-4"
-                />
-            </div>
+  return (
+    <>
+      {notif.show && (
+        <NotifikasiCustom
+          message={notif.message}
+          singleButton={true}
+          buttonLabel="OK"
+          onConfirm={notif.onConfirm}
+        />
+      )}
+
+      <div className="flex h-screen w-screen font-sans relative">
+        <div className="absolute top-6 left-6 z-10">
+          <img
+            onClick={() => navigate('/')}
+            src="/Logo Karisma Academy.png"
+            alt="Logo"
+            className="h-12 w-auto cursor-pointer"
+          />
         </div>
-    );
-}
 
-export default Login;
+        <div className="w-full md:w-1/2 bg-white p-10 flex flex-col justify-center h-screen">
+          <h1 className="text-5xl font-bold text-[#0A0A57] mb-8 text-center">Login</h1>
+
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="relative w-full">
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder=" "
+                className="text-black peer w-full border-2 border-[#0A0A57] rounded-xl px-4 pt-6 pb-2"
+                required
+              />
+              <label className="absolute left-4 top-2 text-gray-500 text-sm">
+                Email
+              </label>
+            </div>
+
+            <div className="relative w-full">
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder=" "
+                className="text-black peer w-full border-2 border-[#0A0A57] rounded-xl px-4 pt-6 pb-2"
+                required
+              />
+              <label className="absolute left-4 top-2 text-gray-500 text-sm">
+                Password
+              </label>
+            </div>
+
+            <div className="flex justify-end">
+              <button
+                type="submit"
+                className="bg-[#0A0A57] text-white font-semibold px-6 py-2 rounded-lg"
+              >
+                Log In
+              </button>
+            </div>
+          </form>
+
+          <div className="mt-4 text-lg text-center">
+            <span className="font-bold text-[#0A0A57]">Belum punya akun? </span>
+            <Link to="/register" className="text-[#0A0A57] underline">
+              Buat akun sekarang
+            </Link>
+          </div>
+        </div>
+
+        <div className="hidden md:flex w-1/2 bg-[#0A0A57] text-white items-center justify-center flex-col px-6">
+          <img
+            src="/Logo Karisma 2.png"
+            alt="Karisma Logo"
+            className="w-[550px] h-auto object-contain mb-4"
+          />
+        </div>
+      </div>
+    </>
+  );
+}

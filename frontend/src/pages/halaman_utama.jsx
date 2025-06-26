@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-export default function HomePage() {
+export default function Home() {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   const nextInstructor = () => {
@@ -18,10 +18,10 @@ export default function HomePage() {
             </h1>
 
             {/* Tombol Webinar Reguler */}
-            <button className="bg-gradient-to-r from-purple-500 to-indigo-700 text-white font-semibold py-2 px-6 rounded-xl shadow-md mb-4">
+            <h4 className="bg-gradient-to-r from-purple-500 to-indigo-700 text-white font-semibold py-2 px-6 rounded-xl mb-4 w-fit">
               WEBINAR REGULER
-            </button>
-
+            </h4>
+            
             {/* Deskripsi */}
             <p className="text-white mb-6">
               Program kelas reguler merupakan pelatihan online secara intensif dan live bersama dengan mentor berpengalaman. Materi Kursus dirancang secara
@@ -47,10 +47,9 @@ export default function HomePage() {
                 Mendapat e-sertifikat
               </li>
             </ul>
-
           </div>
           <div className="flex justify-end">
-            <img src="hero-image.png" alt="Interactive learning illustration" className="w-[300px] md:w-[400px] mx-auto rounded-xl shadow-md" />
+          <img src="hero-image.png" alt="Interactive learning illustration" className="w-[300px] md:w-[400px] mx-auto rounded-xl shadow-md" />
           </div>
         </section>
 
