@@ -58,7 +58,7 @@ export default function Navbar() {
       <div className="relative">
         {isLogin ? (
           <div className="relative flex items-center gap-2">
-            <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2">
+            <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 bg-blue-950 rounded-2xl p-2 w-28 cursor-pointer">
               <img
                 src={`http://localhost:5000/uploads/${foto}?t=${Date.now()}`} // tambahkan timestamp
                 alt="Profile"
@@ -73,16 +73,16 @@ export default function Navbar() {
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white border rounded-md shadow-lg z-10">
+              <div className="absolute right-0 top-10 mt-2 w-40 bg-blue-950 border rounded-2x1 shadow-lg z-10">
                 <button
                   onClick={handleProfile}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-white"
+                  className="w-full text-left px-4 py-2 hover:bg-gray-600 cursor-pointer bg-blue-950 text-white"
                 >
                   Profile
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100"
+                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-600 cursor-pointer bg-blue-950"
                 >
                   Logout
                 </button>
@@ -92,9 +92,9 @@ export default function Navbar() {
         ) : (
           <button
             onClick={() => navigate('/login')}
-            className="bg-indigo-600 text-white px-4 py-2 rounded-md"
+            className="bg-blue-950 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-gray-600"
           >
-            Login
+          <strong>Login</strong>
           </button>
         )}
       </div>

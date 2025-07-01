@@ -59,7 +59,7 @@ export default function ListUser() {
 
   const menuItems = [
     { label: 'Dashboard', path: '/dashboard' },
-    { label: 'Kelas', path: '/tambah_kelas' },
+    { label: 'Kelas', path: '/list_kelas' },
     { label: 'List admin', path: '/list_admin' },
     { label: 'List user', path: '/list_user' },
   ];

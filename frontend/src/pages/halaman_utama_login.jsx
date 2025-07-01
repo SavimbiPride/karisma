@@ -126,10 +126,7 @@ export default function HomePage() {
             />
 
             {/* Gambar Cover Guidebook */}
-            <img
-              src="/guidebook.png" // ganti dengan path cover guidebook
-              alt="Guide Book Cover"
-              className="w-44 md:w-60 h-auto rounded-xl shadow-lg"
+            <img src="/guidebook.png" className="w-44 md:w-60 h-auto rounded-xl shadow-lg"
             />
 
             {/* Deskripsi dan Tombol */}
@@ -139,7 +136,7 @@ export default function HomePage() {
                 Panduan praktis yang dirancang untuk membantu peserta dalam memahami pelaksanaan pelatihan.
               </p>
               <a
-                href="/file/guidebook.pdf" // sesuaikan path file PDF
+                href="/public/GuideBook.pdf" // ganti dengan path file guide book kamu
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-block bg-white text-[#0A0A57] font-semibold px-5 py-2 rounded-lg shadow hover:bg-gray-100 transition duration-200"

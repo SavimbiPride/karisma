@@ -51,7 +51,7 @@ export default function AdminDashboard() {
         <nav className="flex-grow p-6 space-y-4 text-lg">
           {[
             { label: 'Dashboard', path: '/dashboard' },
-            { label: 'Kelas', path: '/tambah_kelas' },
+            { label: 'Kelas', path: '/list_kelas' },
             { label: 'List admin', path: '/list_admin' },
             { label: 'List user', path: '/list_user' },
           ].map((item) => (
@@ -70,13 +70,13 @@ export default function AdminDashboard() {
           <div className="relative">
             <button
               onClick={() => setDropdownOpen(!dropdownOpen)}
-              className="font-semibold bg-[#000045] text-white px-4 py-2 rounded"
+              className="font-semibold bg-[#000045] text-white px-4 py-2 rounded-2xl cursor-pointer"
             >
               {adminName}
             </button>
 
             {dropdownOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow z-20 text-white">
+              <div className="absolute right-0 mt-2 w-40 bg-[#000045] border rounded shadow z-20 text-white">
                 <button
                   onClick={handleProfile}
                   className="w-full text-left px-4 py-2 hover:bg-gray-100"
@@ -85,7 +85,7 @@ export default function AdminDashboard() {
                 </button>
                 <button
                   onClick={handleLogout}
-                  className="w-full text-left px-4 py-2 hover:bg-gray-100 text-red-600"
+                  className="w-full text-left px-4 py-2 bg-[#000045] hover:bg-gray-100 text-red-600"
                 >
                   Logout
                 </button>

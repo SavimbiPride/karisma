@@ -192,14 +192,14 @@ const EditProfile = () => {
           <div className="flex gap-4 mt-4">
             <button
               type="submit"
-              className="bg-[#0a0a57] text-white px-4 py-2 rounded"
+              className="bg-[#0a0a57] hover:bg-blue-400 text-white px-4 py-2 rounded cursor-pointer "
             >
               Simpan Perubahan
             </button>
             <button
               type="button"
               onClick={navigateBack}
-              className="bg-gray-600 text-white px-4 py-2 rounded"
+              className="bg-gray-600 hover:bg-gray-800 text-white px-4 py-2 rounded cursor-pointer"
             >
               Kembali
             </button>

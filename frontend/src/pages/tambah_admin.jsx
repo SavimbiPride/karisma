@@ -80,7 +80,7 @@ export default function TambahAdmin() {
   const cancelSubmit = () => setShowNotif(false);
 
   return (
-    <div className="min-h-screen min-w-screen bg-[#e6f0ff] flex items-center justify-center relative">
+    <div className="min-h-screen min-w-screen bg-[#0a0a57] flex items-center justify-center relative">
       <div className="bg-white rounded-lg p-10 shadow-md w-[900px]">
         <h2 className="text-black text-2xl font-bold text-center mb-6">Tambah Admin Baru</h2>
 
@@ -139,7 +139,7 @@ export default function TambahAdmin() {
 
           <div>
             <label className="block font-semibold mb-1">Foto Profil</label>
-            <input type="file" name="foto" accept="image/*" onChange={handleChange} className="w-full cursor-pointer" />
+            <input type="file" name="foto" accept="image/*" onChange={handleChange} className="cursor-pointer border p-2 w-full rounded"/>
             {preview && (
               <img src={preview} alt="Preview" className="mt-2 w-28 h-28 rounded-full object-cover border" />
             )}

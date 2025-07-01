@@ -11,7 +11,7 @@ export default function NotifikasiCustom({ message, onConfirm, onCancel, singleB
           <div className="flex justify-center">
             <button
               onClick={onConfirm}
-              className="bg-[#162466] hover:bg-[#1e2e91] px-6 py-2 rounded-md"
+              className="bg-[#162466] hover:bg-[#1e2e91] px-6 py-2 rounded-md cursor-pointer"
             >
               {buttonLabel}
             </button>
@@ -20,13 +20,13 @@ export default function NotifikasiCustom({ message, onConfirm, onCancel, singleB
           <div className="flex justify-center gap-6">
             <button
               onClick={onConfirm}
-              className="bg-[#162466] hover:bg-[#1e2e91] px-6 py-2 rounded-md"
+              className="bg-[#162466] hover:bg-[#1e2e91] px-6 py-2 rounded-md cursor-pointer"
             >
               Iya
             </button>
             <button
               onClick={onCancel}
-              className="bg-[#162466] hover:bg-[#1e2e91] px-6 py-2 rounded-md"
+              className="bg-[#162466] hover:bg-[#1e2e91] px-6 py-2 rounded-md cursor-pointer"
             >
               Tidak
             </button>

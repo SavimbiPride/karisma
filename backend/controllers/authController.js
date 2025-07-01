@@ -1,31 +1,42 @@
-// controllers/authController.js
 const db = require('../db');
 const jwt = require('jsonwebtoken');
 const SECRET_KEY = 'SECRET_KEY_KARISMA';
 
-exports.register = (req, res) => {
+// Register
+exports.register = async (req, res) => {
   const { username, email, password } = req.body;
-  const checkQuery = 'SELECT * FROM users WHERE email = ?';
 
-  db.query(checkQuery, [email], (err, result) => {
-    if (err) return res.status(500).json({ message: 'Database error' });
-    if (result.length > 0) return res.status(409).json({ message: 'Email sudah terdaftar' });
+  try {
+    const [existingUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+    if (existingUser.length > 0) {
+      return res.status(409).json({ message: 'Email sudah terdaftar' });
+    }
 
-    const insertQuery = 'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)';
-    db.query(insertQuery, [username, email, password, 'user'], (err) => {
-      if (err) return res.status(500).json({ message: 'Gagal mendaftarkan user' });
-      res.status(201).json({ message: 'User berhasil didaftarkan' });
-    });
-  });
+    await db.query(
+      'INSERT INTO users (username, email, password, role) VALUES (?, ?, ?, ?)',
+      [username, email, password, 'user']
+    );
+
+    res.status(201).json({ message: 'User berhasil didaftarkan' });
+  } catch (err) {
+    console.error('Error register:', err);
+    res.status(500).json({ message: 'Gagal mendaftarkan user' });
+  }
 };
 
-exports.login = (req, res) => {
+// Login
+exports.login = async (req, res) => {
   const { email, password } = req.body;
-  const query = 'SELECT * FROM users WHERE email = ? AND password = ?';
 
-  db.query(query, [email, password], (err, results) => {
-    if (err) return res.status(500).json({ message: 'Database error' });
-    if (results.length === 0) return res.status(401).json({ message: 'Email atau password salah' });
+  try {
+    const [results] = await db.query(
+      'SELECT * FROM users WHERE email = ? AND password = ?',
+      [email, password]
+    );
+
+    if (results.length === 0) {
+      return res.status(401).json({ message: 'Email atau password salah' });
+    }
 
     const user = results[0];
     const token = jwt.sign(
@@ -39,7 +50,8 @@ exports.login = (req, res) => {
       role: user.role,
       foto: user.foto || 'default-avatar.png'
     });
-  });
+  } catch (err) {
+    console.error('Error login:', err);
+    res.status(500).json({ message: 'Gagal login' });
+  }
 };
-
-

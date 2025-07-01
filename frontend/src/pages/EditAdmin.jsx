@@ -98,7 +98,7 @@ export default function EditAdmin() {
       <form onSubmit={handleSubmit} className="bg-white text-black p-6 rounded-lg shadow-md w-full max-w-2xl grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="flex flex-col items-center">
           <img src={preview} alt="Preview" className="w-40 h-40 rounded-full object-cover border" />
-          <input type="file" accept="image/*" onChange={handlePhotoChange} className="mt-4" />
+          <input type="file" accept="image/*" onChange={handlePhotoChange} className="cursor-pointer border p-2 w-full rounded" />
         </div>
         <div className="flex flex-col gap-3">
           <label>Username</label>

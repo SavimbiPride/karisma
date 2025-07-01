@@ -1,15 +1,26 @@
+// db.js
 const mysql = require('mysql2');
 
-const db = mysql.createConnection({
+// Buat pool koneksi
+const pool = mysql.createPool({
   host: 'localhost',
   user: 'root',
   password: '',
-  database: 'norio'
+  database: 'norio',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
 });
 
-db.connect((err) => {
-  if (err) throw err;
-  console.log('Terhubung ke database MySQL');
+// Tes koneksi
+pool.getConnection((err, connection) => {
+  if (err) {
+    console.error('Koneksi ke database gagal:', err);
+  } else {
+    console.log('Terhubung ke database MySQL');
+    connection.release(); // Jangan lupa lepas koneksi kembali ke pool
+  }
 });
 
-module.exports = db;
+// Ekspor versi promise dari pool
+module.exports = pool.promise();
