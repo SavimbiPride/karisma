@@ -361,7 +361,7 @@ export default function EditKelas() {
 
             <div className="flex gap-4 mt-6">
               <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">Simpan Perubahan</button>
-              <button type="button" onClick={() => navigate('/list_kelas')} className="bg-gray-500 text-white px-4 py-2 rounded">Kembali</button>
+              <button type="button" onClick={() => navigate('/list_kelas')} className="bg-gray-500 text-white px-4 py-2 rounded cursor-pointer">Kembali</button>
             </div>
           </form>
         </div>
