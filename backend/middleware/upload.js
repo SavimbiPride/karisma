@@ -1,12 +1,11 @@
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
+const { log } = require('console');
 
-// Buat folder upload jika belum ada
 const folder = './uploads';
 if (!fs.existsSync(folder)) fs.mkdirSync(folder, { recursive: true });
 
-// Ekstensi file yang diizinkan
 const fileFilter = (req, file, cb) => {
   const allowedImageTypes = /jpeg|jpg|png|gif/;
   const allowedVideoTypes = /mp4|webm|ogg/;
@@ -22,11 +21,12 @@ const fileFilter = (req, file, cb) => {
   cb(new Error(`File ${file.originalname} tidak didukung.`), false);
 };
 
-// Batasi ukuran file: 10MB (bisa diubah sesuai kebutuhan)
+// ukuran mb
 const limits = {
-  fileSize: 10 * 1024 * 1024, // 10 MB
+  fileSize: 10 * 1024 * 1024,
 };
 
+// Storage
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, folder);
@@ -39,4 +39,21 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage, fileFilter, limits });
 
-module.exports = upload;
+const uploadKelasFields = () => {
+  const fields = [];
+  
+  for (let i = 0; i < 2; i++) {
+    fields.push({ name: `tools_image_${i}`, maxCount: 1 });
+    fields.push({ name: `sesi_video_${i}`, maxCount: 1 });
+  }
+  console.log('fields', fields);
+  fields.push({ name: 'foto_pengajar', maxCount: 1 });
+  fields.push({ name: 'image', maxCount: 1 });
+  
+  return upload.fields(fields);
+};
+
+module.exports = {
+  upload,
+  uploadKelasFields,
+};

@@ -1,7 +1,6 @@
 const db = require('../db');
 const fs = require('fs');
 
-// Ringkasan Dashboard
 exports.getSummary = async (req, res) => {
   try {
     const [userRows] = await db.query("SELECT COUNT(*) AS total_user FROM users WHERE role = 'user'");
@@ -20,8 +19,6 @@ exports.getSummary = async (req, res) => {
   }
 };
 
-
-// Tambah Admin
 exports.tambahAdmin = async (req, res) => {
   const { username, email, password, domisili, tanggal_lahir, alamat } = req.body;
   const foto = req.file ? req.file.filename : 'default-avatar.png';
@@ -48,7 +45,6 @@ exports.tambahAdmin = async (req, res) => {
   }
 };
 
-// Get List Admin
 exports.getListAdmin = async (req, res) => {
   try {
     const [result] = await db.query("SELECT * FROM users WHERE role = 'admin' ORDER BY id ASC");
@@ -59,7 +55,6 @@ exports.getListAdmin = async (req, res) => {
   }
 };
 
-// Get Admin by ID
 exports.getAdminById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -72,7 +67,6 @@ exports.getAdminById = async (req, res) => {
   }
 };
 
-// Edit Admin
 exports.editAdmin = async (req, res) => {
   const { id } = req.params;
   const { username, email, alamat, domisili, tanggal_lahir } = req.body;
@@ -108,7 +102,6 @@ exports.editAdmin = async (req, res) => {
   }
 };
 
-// Delete Admin
 exports.deleteAdmin = async (req, res) => {
   const { id } = req.params;
 

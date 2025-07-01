@@ -54,6 +54,7 @@ export default function AdminDashboard() {
             { label: 'Kelas', path: '/list_kelas' },
             { label: 'List admin', path: '/list_admin' },
             { label: 'List user', path: '/list_user' },
+            { label: 'List mentor', path: '/list_mentor' }
           ].map((item) => (
             <div key={item.label} onClick={() => {navigate(item.path); setDropdownOpen(false)}} className={`cursor-pointer px-4 py-2 rounded ${window.location.pathname === item.path ? 'bg-white text-[#000045] font-semibold' : 'hover:bg-white/20'}`}>
               {item.label}

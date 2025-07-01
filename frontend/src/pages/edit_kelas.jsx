@@ -17,6 +17,7 @@ export default function EditKelas() {
     image: '',
   });
 
+  const [mentorList, setMentorList] = useState([]);
   const [tools, setTools] = useState([]);
   const [sesi, setSesi] = useState([]);
   const [previewImage, setPreviewImage] = useState(null);
@@ -26,6 +27,17 @@ export default function EditKelas() {
   const [notifMessage, setNotifMessage] = useState('');
 
   useEffect(() => {
+    // Ambil data mentor dari backend
+    axios.get('http://localhost:5000/api/list-mentor')
+      .then((res) => {
+        setMentorList(res.data); // asumsi: data = [{ nama: '', foto_pengajar_url: '' }, ...]
+      })
+      .catch((err) => {
+        console.error('Gagal mengambil mentor:', err);
+      });
+  }, []);
+
+  useEffect(() => {
     axios.get(`http://localhost:5000/api/kelas/${id}`).then((res) => {
       const data = res.data;
       setForm({
@@ -33,73 +45,53 @@ export default function EditKelas() {
         deskripsi: data.deskripsi,
         harga: formatHarga(data.harga),
         nama_pengajar: data.nama_pengajar,
-        foto_pengajar: data.foto_pengajar,
+        foto_pengajar: data.foto_pengajar_url,
         image: data.image,
       });
 
-      setTools(
-        (data.tools || []).map((t, index) => ({
-          ...t,
-          index,
-          image: t.image,
-          preview: `http://localhost:5000/uploads/${t.image}`,
-        }))
-      );
+      setTools((data.tools || []).map((t, index) => ({
+        ...t,
+        index,
+        image: t.image,
+        preview: `http://localhost:5000/uploads/${t.image}`,
+      })));
 
-      setSesi(
-        (data.sesi || []).map((s, index) => {
-          const video = Array.isArray(s.video) && s.video.length > 0 ? s.video[0] : null;
-          const tugasText = Array.isArray(s.tugas) && s.tugas.length > 0 ? s.tugas[0].soal_tugas : '';
-
-          let quizSoal = '';
-          let quizJawaban = ['', '', '', ''];
-          let quizBenar = null;
-
-          if (Array.isArray(s.quiz) && s.quiz.length > 0) {
-            quizSoal = s.quiz[0].soal;
-            quizJawaban = s.quiz[0].jawaban.map(j => j.teks);
-            quizBenar = s.quiz[0].jawaban.findIndex(j => j.benar === true);
-          }
-
-          return {
-            judul: s.judul_sesi || '',
-            topik: s.topik || '',
-            video: null,
-            preview: video ? `http://localhost:5000/uploads/${video}` : null,
-            tugas: tugasText,
-            quiz: {
-              soal: quizSoal,
-              jawaban: quizJawaban,
-              benar: quizBenar,
-            },
-          };
-        })
-      );
+      setSesi((data.sesi || []).map((s) => {
+        const video = Array.isArray(s.video) && s.video.length > 0 ? s.video[0] : null;
+        const tugasText = Array.isArray(s.tugas) && s.tugas.length > 0 ? s.tugas[0].soal_tugas : '';
+        let quizSoal = '', quizJawaban = ['', '', '', ''], quizBenar = null;
+        if (Array.isArray(s.quiz) && s.quiz.length > 0) {
+          quizSoal = s.quiz[0].soal;
+          quizJawaban = s.quiz[0].jawaban.map(j => j.teks);
+          quizBenar = s.quiz[0].jawaban.findIndex(j => j.benar === true);
+        }
+        return {
+          judul: s.judul_sesi || '',
+          topik: s.topik || '',
+          video: null,
+          preview: video ? `http://localhost:5000/uploads/${video}` : null,
+          tugas: tugasText,
+          quiz: { soal: quizSoal, jawaban: quizJawaban, benar: quizBenar },
+        };
+      }));
 
       setPreviewImage(`http://localhost:5000/uploads/${data.image}`);
-      setPreviewFotoPengajar(`http://localhost:5000/uploads/${data.foto_pengajar}`);
+      setPreviewFotoPengajar(data.foto_pengajar_url);
     });
   }, [id]);
 
-  const formatHarga = (angka) => {
-    return new Intl.NumberFormat('id-ID').format(Number(angka));
-  };
-
-  const parseHarga = (stringHarga) => {
-    return stringHarga.replace(/\D/g, '');
-  };
+  const formatHarga = (angka) => new Intl.NumberFormat('id-ID').format(Number(angka));
+  const parseHarga = (stringHarga) => stringHarga.replace(/\D/g, '');
 
   const handleChange = (e) => {
     const { name, value, files } = e.target;
     if (files) {
       setForm({ ...form, [name]: files[0] });
       if (name === 'image') setPreviewImage(URL.createObjectURL(files[0]));
-      if (name === 'foto_pengajar') setPreviewFotoPengajar(URL.createObjectURL(files[0]));
     } else {
       if (name === 'harga') {
         const raw = value.replace(/\D/g, '');
-        const formatted = formatHarga(raw);
-        setForm({ ...form, [name]: formatted });
+        setForm({ ...form, [name]: formatHarga(raw) });
       } else {
         setForm({ ...form, [name]: value });
       }
@@ -107,77 +99,62 @@ export default function EditKelas() {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  try {
-    const data = new FormData();
-
-    data.append('judul', form.judul);
-    data.append('deskripsi', form.deskripsi);
-    data.append('harga', parseHarga(form.harga));
-    data.append('nama_pengajar', form.nama_pengajar);
-
-    // Upload foto pengajar
-    if (form.foto_pengajar instanceof File) {
+    e.preventDefault();
+    try {
+      const data = new FormData();
+      data.append('judul', form.judul);
+      data.append('deskripsi', form.deskripsi);
+      data.append('harga', parseHarga(form.harga));
+      data.append('nama_pengajar', form.nama_pengajar);
       data.append('foto_pengajar', form.foto_pengajar);
-    } else {
-      data.append('old_foto_pengajar', form.foto_pengajar);
-    }
-
-    // Upload gambar kelas
-    if (form.image instanceof File) {
-      data.append('image', form.image);
-    } else {
-      data.append('old_image', form.image);
-    }
-
-    // Toolsconst toolsData = tools.map(({ judul, deskripsi }) => ({ judul, deskripsi }));
-    const toolsData = tools.map(({ judul, deskripsi, image }) => ({
-      judul,
-      deskripsi,
-      image: image instanceof File ? null : image,
-    }));
-
-    data.append('tools', JSON.stringify(toolsData));
-    tools.forEach((tool, i) => {
-      if (tool.image instanceof File) {
-        data.append(`tools_image_${i}`, tool.image); // sesuai backend
+      if (form.image instanceof File) {
+        data.append('image', form.image);
+      } else {
+        data.append('old_image', form.image);
       }
-    });
 
-    // Sesi
-    const sesiData = sesi.map((s) => ({
-      judul: s.judul,
-      topik: s.topik,
-      tugas: s.tugas,
-      quiz: s.quiz,
-    }));
-    data.append('sesi', JSON.stringify(sesiData));
-    sesi.forEach((s, i) => {
-      if (s.video instanceof File) {
-        data.append(`sesi_video_${i}`, s.video); // sesuai backend
-      }
-    });
+      const toolsData = tools.map(({ judul, deskripsi, image }) => ({
+        judul,
+        deskripsi,
+        image: image instanceof File ? null : image,
+      }));
+      data.append('tools', JSON.stringify(toolsData));
+      tools.forEach((tool, i) => {
+        if (tool.image instanceof File) {
+          data.append(`tools_image_${i}`, tool.image);
+        }
+      });
 
-    await axios.put(`http://localhost:5000/api/kelas/${id}`, data, {
-      headers: { 'Content-Type': 'multipart/form-data' },
-    });
+      const sesiData = sesi.map((s) => ({
+        judul: s.judul,
+        topik: s.topik,
+        tugas: s.tugas,
+        quiz: s.quiz,
+      }));
+      data.append('sesi', JSON.stringify(sesiData));
+      sesi.forEach((s, i) => {
+        if (s.video instanceof File) {
+          data.append(`sesi_video_${i}`, s.video);
+        }
+      });
 
-    setNotifSuccess(true);
-  } catch (err) {
-    console.error('Gagal update:', err);
-    setNotifMessage('Gagal memperbarui kelas');
-    setNotifGagal(true);
-  }
-};
+      await axios.put(`http://localhost:5000/api/kelas/${id}`, data, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      setNotifSuccess(true);
+    } catch (err) {
+      console.error('Gagal update:', err);
+      setNotifMessage('Gagal memperbarui kelas');
+      setNotifGagal(true);
+    }
+  };
 
   const handleOkSuccess = () => {
     setNotifSuccess(false);
     navigate('/list_kelas');
   };
-
-  const handleOkGagal = () => {
-    setNotifGagal(false);
-  };
+  const handleOkGagal = () => setNotifGagal(false);
 
   return (
     <div className="flex min-h-screen min-w-screen">
@@ -200,6 +177,7 @@ export default function EditKelas() {
               singleButton={true}
             />
           )}
+
           <form onSubmit={handleSubmit} className="space-y-6" encType="multipart/form-data">
             <div>
               <label>Judul Kelas</label>
@@ -216,22 +194,41 @@ export default function EditKelas() {
               <input name="harga" value={form.harga} onChange={handleChange} className="w-full p-3 border rounded" />
             </div>
 
-            <div>
-              <label>Nama Pengajar</label>
-              <input name="nama_pengajar" value={form.nama_pengajar} onChange={handleChange} className="w-full p-3 border rounded" />
-            </div>
-
-            <div>
-              <label>Foto Pengajar</label>
-              <input type="file" name="foto_pengajar" accept="image/*" onChange={handleChange} className="w-full mt-3 p-3 border rounded cursor-pointer" />
-              {previewFotoPengajar && <img src={previewFotoPengajar} className="w-32 h-32 object-cover rounded mt-2" />}
-            </div>
-
-            <div>
-              <label>Gambar Kelas</label>
-              <input type="file" name="image" accept="image/*" onChange={handleChange} className="w-full mt-3 p-3 border rounded cursor-pointer" />
-              {previewImage && <img src={previewImage} className="w-90 h-50 object-cover rounded border mt-2" />}
-            </div>
+          <div>
+            <label>Nama Pengajar</label>
+              <select
+                name="nama_pengajar"
+                value={form.nama_pengajar}
+                onChange={(e) => {
+                  const selectedNama = e.target.value;
+                  const selectedMentor = mentorList.find(m => m.username === selectedNama);
+                  setForm({
+                    ...form,
+                    nama_pengajar: selectedNama,
+                    foto_pengajar: selectedMentor ? selectedMentor.foto : '',
+                  });
+                  setPreviewFotoPengajar(selectedMentor ? `http://localhost:5000/uploads/${selectedMentor.foto}` : null);
+                }}
+                className="w-full p-3 border rounded"
+              >
+                <option value="">-- Pilih Mentor --</option>
+                {mentorList.map((mentor) => (
+                  <option key={mentor.id} value={mentor.username}>
+                    {mentor.username}
+                  </option>
+                ))}
+              </select>
+          </div>
+          <div>
+            <label>Foto Pengajar</label>
+            {previewFotoPengajar && (
+              <img
+                src={previewFotoPengajar}
+                alt="Foto Pengajar"
+                className="w-32 h-32 object-cover rounded mt-2 border"
+              />
+            )}
+          </div>
 
             <h3 className="text-lg font-semibold">Tools</h3>
             {tools.map((tool, i) => (

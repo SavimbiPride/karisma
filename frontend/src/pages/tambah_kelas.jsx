@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { FaPlus } from 'react-icons/fa';
@@ -9,30 +9,53 @@ export default function TambahKelas() {
   const [deskripsi, setDeskripsi] = useState('');
   const [harga, setHarga] = useState('');
   const [namaPengajar, setNamaPengajar] = useState('');
-  const [fotoPengajar, setFotoPengajar] = useState(null);
-  const [previewFotoPengajar, setPreviewFotoPengajar] = useState(null);
-  const [gambarKelas, setGambarKelas] = useState(null);
-  const [previewGambarKelas, setPreviewGambarKelas] = useState(null);
-  const [tools, setTools] = useState([{ judul: '', deskripsi: '', image: '', preview: null }]);
+  const [fotoPengajar, setFotoPengajar] = useState('');
+  const [previewFotoPengajar, setPreviewFotoPengajar] = useState('');
+  const [gambarKelas, setGambarKelas] = useState('');
+  const [previewGambarKelas, setPreviewGambarKelas] = useState('');
+  const [tools, setTools] = useState([{ judul: '', deskripsi: '', image: '', preview: '' }]);
   const [sesi, setSesi] = useState([
     {
       judul: '',
       topik: '',
-      video: null,
-      preview: null,
+      video: '',
+      preview: '',
       tugas: '',
       quiz: {
         soal: '',
         jawaban: ['', '', '', ''],
-        benar: null,
+        benar: '',
       },
     },
   ]);
+  const [mentors, setMentors] = useState([]);
 
   const [notifSuccess, setNotifSuccess] = useState(false);
   const [notifGagal, setNotifGagal] = useState(false);
   const [notifMessage, setNotifMessage] = useState('');
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchMentors = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get('http://localhost:5000/api/mentor', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setMentors(res.data);
+      } catch (err) {
+        console.error('Gagal mengambil data mentor:', err);
+      }
+    };
+    fetchMentors();
+  }, []);
+
+  const handleMentorChange = (e) => {
+    const selected = mentors.find(m => m.username === e.target.value);
+    setNamaPengajar(selected.username);
+    setFotoPengajar('');
+    setPreviewFotoPengajar(`http://localhost:5000/uploads/${selected.foto}`);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,7 +65,7 @@ export default function TambahKelas() {
       deskripsi.trim() === '' ||
       harga.trim() === '' ||
       namaPengajar.trim() === '' ||
-      !fotoPengajar ||
+      !previewFotoPengajar ||
       !gambarKelas
     ) {
       setNotifMessage('Harap lengkapi semua field ya :3');
@@ -55,23 +78,19 @@ export default function TambahKelas() {
     formData.append('deskripsi', deskripsi);
     formData.append('harga', harga);
     formData.append('nama_pengajar', namaPengajar);
-
-    formData.append('foto_pengajar', fotoPengajar);
     formData.append('gambar_kelas', gambarKelas);
+    formData.append('foto_pengajar_url', previewFotoPengajar);
 
-    // Kirim tools JSON (judul, deskripsi saja)
     formData.append('tools', JSON.stringify(
       tools.map(({ judul, deskripsi }) => ({ judul, deskripsi }))
     ));
 
-    // Upload semua gambar tools sebagai array tools_images[]
     tools.forEach(tool => {
       if (tool.image) {
         formData.append('tools_images', tool.image);
       }
     });
 
-    // Kirim sesi JSON
     formData.append('sesi', JSON.stringify(
       sesi.map(s => ({
         judul: s.judul,
@@ -81,7 +100,6 @@ export default function TambahKelas() {
       }))
     ));
 
-    // Upload semua video sesi sebagai array sesi_videos[]
     sesi.forEach(s => {
       if (s.video) {
         formData.append('sesi_videos', s.video);
@@ -99,7 +117,6 @@ export default function TambahKelas() {
       setNotifGagal(true);
     }
   };
-
 
   const handleOkSuccess = () => {
     setNotifSuccess(false);
@@ -143,16 +160,16 @@ export default function TambahKelas() {
             <input type="number" value={harga} onChange={(e) => setHarga(e.target.value)} className="border p-2 w-full rounded" />
 
             <label>Nama Pengajar</label>
-            <input type="text" value={namaPengajar} onChange={(e) => setNamaPengajar(e.target.value)} className="border p-2 w-full rounded" />
+            <select value={namaPengajar} onChange={handleMentorChange} className="border p-2 w-full rounded">
+              <option value="">-- Pilih Mentor --</option>
+              {mentors.map((m, idx) => (
+                <option key={`mentor-${idx}`} value={m.username}>{m.username}</option>
+              ))}
+            </select>
 
             <label>Foto Pengajar</label>
-            <input type="file" onChange={(e) => {
-              const file = e.target.files[0];
-              setFotoPengajar(file);
-              setPreviewFotoPengajar(URL.createObjectURL(file));
-            }} className="cursor-pointer border p-2 w-full rounded" />
             {previewFotoPengajar && (
-              <img src={previewFotoPengajar} alt="Preview Pengajar" className="w-32 h-32 object-cover rounded mt-2" />
+              <img src={previewFotoPengajar} alt="Preview Pengajar" className="w-32 h-32 object-cover rounded mt-2 border" />
             )}
 
             <label>Gambar Kelas</label>
@@ -167,7 +184,7 @@ export default function TambahKelas() {
 
             <h3 className="text-lg font-semibold">Tools</h3>
             {tools.map((tool, i) => (
-              <div key={i} className="border p-3 space-y-2 rounded">
+              <div key={`tool-${i}`} className="border p-3 space-y-2 rounded">
                 <label>Judul Tools</label>
                 <input type="text" value={tool.judul} onChange={(e) => {
                   const newTools = [...tools];
@@ -206,11 +223,11 @@ export default function TambahKelas() {
                 </button>
               </div>
             ))}
-            <button type="button" onClick={() => setTools([...tools, { judul: '', deskripsi: '', image: null, preview: null }])} className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2"><FaPlus /> Tambah Tool</button>
+            <button type="button" onClick={() => setTools([...tools, { judul: '', deskripsi: '', image: '', preview: '' }])} className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2"><FaPlus /> Tambah Tool</button>
 
             <h3 className="text-lg font-semibold">Sesi</h3>
             {sesi.map((s, i) => (
-              <div key={i} className="border p-3 space-y-2 rounded">
+              <div key={`sesi-${i}`} className="border p-3 space-y-2 rounded">
                 <label>Judul Sesi</label>
                 <input type="text" value={s.judul} onChange={(e) => {
                   const newSesi = [...sesi];
@@ -252,7 +269,7 @@ export default function TambahKelas() {
                 }} className="border p-2 w-full rounded" />
 
                 {s.quiz.jawaban.map((j, jIndex) => (
-                <div key={jIndex} className="flex items-center gap-2 mb-1">
+                <div key={`jawaban-${i}-${jIndex}`} className="flex items-center gap-2 mb-1">
                   <input
                     type="radio"
                     name={`jawaban_benar_${i}`}
@@ -291,7 +308,7 @@ export default function TambahKelas() {
               </div>
             ))}
             <button type="button" onClick={() => setSesi([...sesi, {
-              judul: '', topik: '', video: null, preview: null, tugas: '', quiz: { soal: '', jawaban: ['', '', '', ''] }
+              judul: '', topik: '', video: '', preview: '', tugas: '', quiz: { soal: '', jawaban: ['', '', '', ''], benar: '' }
             }])} className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2"><FaPlus /> Tambah Sesi</button>
 
             <div className="flex gap-4 mt-6">

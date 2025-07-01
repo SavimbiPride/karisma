@@ -10,13 +10,16 @@ import HomePage from './pages/halaman_utama_login';
 import AdminDashboard from './pages/dashboard_admin';
 import ListAdmin from './pages/list_admin';
 import TambahAdmin from './pages/tambah_admin';
-import EditAdmin from './pages/EditAdmin';
+import EditAdmin from './pages/editadmin';
 import ListUser from './pages/list_user';
 import ListKelas from './pages/list_kelas';
 import TambahKelas from './pages/tambah_kelas';
 import EditKelas from './pages/edit_kelas';
 import DetailKelas from './pages/detail_kelas';
 import EditProfile from './pages/EditProfile';
+import ListMentor from './pages/list_mentor';
+import TambahMentor from './pages/tambah_mentor';
+import EditMentor from './pages/EditMentor';
 
 // Components
 import Navbar from './components/navbar';
@@ -34,12 +37,16 @@ function AppContent() {
     '/tambah_admin',
     '/list_kelas',
     '/tambah_kelas',
+    '/list_mentor',
+    '/tambah_mentor',
+    '/EditMentor',
   ];
 
   const hideNavbarDynamicPaths = [
     '/EditAdmin/:id',
     '/edit_kelas/:id',
     '/detail_kelas/:id',
+    '/EditMentor/:id',
   ];
 
   // Cek path statis
@@ -73,6 +80,9 @@ function AppContent() {
         <Route path="/tambah_kelas" element={<TambahKelas />} />
         <Route path="/edit_kelas/:id" element={<EditKelas />} />
         <Route path="/detail_kelas/:id" element={<DetailKelas />} />
+        <Route path="/list_mentor" element={<ListMentor />} />
+        <Route path="/tambah_mentor" element={<TambahMentor />} />
+        <Route path="/EditMentor/:id" element={<EditMentor />} />
       </Routes>
     </>
   );

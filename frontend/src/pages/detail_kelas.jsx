@@ -42,9 +42,9 @@ export default function DetailKelas() {
             <p><strong>Deskripsi:</strong> {kelas.deskripsi}</p>
             <p><strong>Harga:</strong> Rp {Number(kelas.harga).toLocaleString('id-ID')}</p>
             <div className="mt-4 flex items-center gap-4">
-              {kelas.foto_pengajar && (
+              {kelas.foto_pengajar_url && (
                 <img
-                  src={`http://localhost:5000/uploads/${kelas.foto_pengajar}`}
+                  src={kelas.foto_pengajar_url}
                   alt="foto pengajar"
                   className="w-20 h-20 rounded-full object-cover border"
                 />
@@ -66,11 +66,17 @@ export default function DetailKelas() {
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {kelas.tools.map((tool) => (
                 <div key={tool.id} className="flex gap-4 bg-gray-100 p-4 rounded-lg shadow">
-                  <img
-                    src={`http://localhost:5000/uploads/${tool.image}`}
-                    alt={tool.judul}
-                    className="w-16 h-16 object-cover rounded"
-                  />
+                  {tool.image ? (
+                    <img
+                      src={`http://localhost:5000/uploads/${tool.image}`}
+                      alt={tool.judul}
+                      className="w-16 h-16 object-cover rounded"
+                    />
+                  ) : (
+                    <div className="w-16 h-16 bg-gray-300 rounded flex items-center justify-center text-xs text-gray-500">
+                      No Image
+                    </div>
+                  )}
                   <div>
                     <p className="font-bold">{tool.judul}</p>
                     <p className="text-sm text-gray-600">{tool.deskripsi}</p>
@@ -96,19 +102,15 @@ export default function DetailKelas() {
                   <p className="text-sm text-gray-700 mb-3">Topik: {sesi.topik}</p>
 
                   {/* Video */}
-                  {sesi.video?.length > 0 ? (
+                  {sesi.video ? (
                     <div className="mt-4">
                       <h3 className="text-md font-semibold text-blue-700 flex items-center gap-2 mb-2">
                         <FaVideo /> Video
                       </h3>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {sesi.video.map((v, vIdx) => (
-                          <video key={vIdx} controls className="w-80 h-50 rounded shadow">
-                            <source src={`http://localhost:5000/uploads/${sesi.video}`} type="video/mp4" />
-                            Your browser does not support the video tag.
-                          </video>
-                        ))}
-                      </div>
+                      <video controls className="w-80 h-50 rounded shadow">
+                        <source src={`http://localhost:5000/uploads/${sesi.video}`} type="video/mp4" />
+                        Your browser does not support the video tag.
+                      </video>
                     </div>
                   ) : (
                     <p className="text-sm text-gray-500 ml-4">Tidak ada video</p>

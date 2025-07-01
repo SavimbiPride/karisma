@@ -1,8 +1,6 @@
-// Struktur baru
-// backend/routes/adminRoutes.js
 const express = require('express');
 const router = express.Router();
-const upload = require('../middleware/upload');
+const upload = require('../middleware/uploadsingle');
 const adminController = require('../controllers/adminController');
 
 router.get('/summary', adminController.getSummary);

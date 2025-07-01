@@ -1,8 +1,7 @@
 const db = require('../db');
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'SECRET_KEY_KARISMA';
+const SECRET_KEY = 'sigma_boy';
 
-// Register
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
 
@@ -24,7 +23,6 @@ exports.register = async (req, res) => {
   }
 };
 
-// Login
 exports.login = async (req, res) => {
   const { email, password } = req.body;
 

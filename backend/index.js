@@ -7,6 +7,7 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const kelasRoutes = require('./routes/kelasRoutes');
+const mentorRoutes = require('./routes/mentorRoutes');
 
 const app = express();
 const PORT = 5000;
@@ -29,6 +30,7 @@ app.use('/api', authRoutes);
 app.use('/api', userRoutes);
 app.use('/api', adminRoutes);
 app.use('/api', kelasRoutes);
+app.use('/api', mentorRoutes);
 
 // Start server
 app.listen(PORT, () => {

@@ -1,10 +1,9 @@
 const db = require('../db');
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'SECRET_KEY_KARISMA';
+const SECRET_KEY = 'sigma_boy';
 const fs = require('fs');
 const path = require('path');
 
-// Ambil Profil Berdasarkan Token
 exports.getProfile = async (req, res) => {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ message: 'Unauthorized' });
@@ -24,7 +23,6 @@ exports.getProfile = async (req, res) => {
   }
 };
 
-// Update Profil User
 exports.updateProfile = async (req, res) => {
   const { username, email, alamat, domisili, tanggal_lahir, id } = req.body;
   const fotoBaru = req.file ? req.file.filename : null;
@@ -69,7 +67,6 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-// Ambil Semua User (role = user)
 exports.getAllUsers = async (req, res) => {
   try {
     const [result] = await db.query(
@@ -82,12 +79,11 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// Hapus User Berdasarkan ID
 exports.deleteUser = async (req, res) => {
   const userId = req.params.id;
 
   try {
-    // Ambil data user dulu
+    // select dulu
     const [userData] = await db.query('SELECT foto FROM users WHERE id = ? AND role = "user"', [userId]);
     if (userData.length === 0) return res.status(404).json({ message: 'User tidak ditemukan' });
 

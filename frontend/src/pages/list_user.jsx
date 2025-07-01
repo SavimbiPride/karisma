@@ -62,6 +62,7 @@ export default function ListUser() {
     { label: 'Kelas', path: '/list_kelas' },
     { label: 'List admin', path: '/list_admin' },
     { label: 'List user', path: '/list_user' },
+    { label: 'List mentor', path: '/list_mentor' }
   ];
 
   return (
