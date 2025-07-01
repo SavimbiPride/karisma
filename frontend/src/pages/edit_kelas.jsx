@@ -349,7 +349,7 @@ export default function EditKelas() {
                   newSesi.splice(i, 1);
                   setSesi(newSesi);
                 }}
-                className="bg-red-500 text-white px-3 py-1 rounded"
+                className="bg-red-500 text-white px-3 py-1 rounded cursor-pointer"
               >
                 Hapus Sesi
               </button>
@@ -357,10 +357,10 @@ export default function EditKelas() {
             ))}
             <button type="button" onClick={() => setSesi([...sesi, {
               judul: '', topik: '', video: null, preview: null, tugas: '', quiz: { soal: '', jawaban: ['', '', '', ''], benar: null }
-            }])} className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2"><FaPlus /> Tambah Sesi</button>
+            }])} className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2 cursor-pointer"><FaPlus /> Tambah Sesi</button>
 
             <div className="flex gap-4 mt-6">
-              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Simpan Perubahan</button>
+              <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded cursor-pointer">Simpan Perubahan</button>
               <button type="button" onClick={() => navigate('/list_kelas')} className="bg-gray-500 text-white px-4 py-2 rounded">Kembali</button>
             </div>
           </form>
