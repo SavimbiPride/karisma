@@ -1,7 +1,6 @@
-// src/pages/ListUser.jsx
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { FaTrash } from 'react-icons/fa';
+import { FaEdit } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import NotifikasiCustom from '../components/NotifikasiCustom';
 
@@ -12,6 +11,7 @@ export default function ListUser() {
   const navigate = useNavigate();
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const totalPages = Math.ceil(users.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentUsers = users.slice(indexOfFirstItem, indexOfLastItem);
@@ -131,10 +131,10 @@ export default function ListUser() {
                     <td>{user.tanggal_lahir?.split('T')[0]}</td>
                     <td className="flex justify-center gap-2 py-2">
                       <button
-                        onClick={() => handleDeleteClick(user)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
+                      onClick={() => navigate(`/EditUser/${user.id}`)}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded cursor-pointer"
                       >
-                        <FaTrash />
+                      <FaEdit />
                       </button>
                     </td>
                   </tr>
@@ -152,23 +152,34 @@ export default function ListUser() {
 
         <div className="flex justify-end mt-4 pr-1 text-sm">
           <div className="flex items-center gap-2">
+
+            {/* Tombol < */}
             <span
-              className={`text-black cursor-pointer ${currentPage === 1 ? 'opacity-50 pointer-events-none' : ''}`}
+              className={`text-black font-semibold cursor-pointer ${currentPage === 1 ? 'opacity-50 pointer-events-none' : ''}`}
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             >
               &lt;
             </span>
-            <span className="bg-[#000045] text-white px-2 py-1 rounded">{currentPage}</span>
+
+            {/* Nomor halaman */}
+            {Array.from({ length: totalPages }, (_, i) => (
+              <span
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-2 py-1 rounded cursor-pointer ${currentPage === i + 1 ? 'bg-[#000045] text-white' : 'bg-gray-200 text-black hover:bg-gray-300'}`}
+              >
+                {i + 1}
+              </span>
+            ))}
+
+            {/* Tombol > */}
             <span
-              className={`text-black cursor-pointer ${indexOfLastItem >= users.length ? 'opacity-50 pointer-events-none' : ''}`}
-              onClick={() => {
-                if (indexOfLastItem < users.length) {
-                  setCurrentPage((prev) => prev + 1);
-                }
-              }}
+              className={`text-black font-semibold cursor-pointer ${currentPage === totalPages ? 'opacity-50 pointer-events-none' : ''}`}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             >
               &gt;
             </span>
+
           </div>
         </div>
       </main>

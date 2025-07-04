@@ -3,21 +3,22 @@ const fs = require('fs');
 
 exports.getSummary = async (req, res) => {
   try {
-    const [userRows] = await db.query("SELECT COUNT(*) AS total_user FROM users WHERE role = 'user'");
-    const [kelasRows] = await db.query("SELECT COUNT(*) AS total_kelas FROM kelas");
-
-    console.log('User Count:', userRows);  // <-- Debug
-    console.log('Kelas Count:', kelasRows); // <-- Debug
+    const [userRows] = await db.query("SELECT COUNT(*) user_count FROM users WHERE role = 'user'");
+    const [kelasRows] = await db.query("SELECT COUNT(*) kelas_count FROM kelas");
+ 
+    const userCount = userRows[0].user_count;
+    const kelasCount = kelasRows[0].kelas_count;
 
     res.json({
-      total_user: userRows[0].total_user,
-      total_kelas: kelasRows[0].total_kelas,
+      total_user: userCount, total_kelas: kelasCount
     });
+
   } catch (err) {
     console.error('Error getSummary:', err);
     res.status(500).json({ message: 'Gagal mengambil ringkasan dashboard' });
   }
 };
+
 
 exports.tambahAdmin = async (req, res) => {
   const { username, email, password, domisili, tanggal_lahir, alamat } = req.body;

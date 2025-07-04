@@ -1,7 +1,8 @@
 const db = require('../db');
 const fs = require('fs');
+const path = require('path');
 
-
+// Ambil semua mentor
 exports.getListMentor = async (req, res) => {
   try {
     const [result] = await db.query(
@@ -14,6 +15,7 @@ exports.getListMentor = async (req, res) => {
   }
 };
 
+// Ambil mentor berdasarkan ID
 exports.getMentorById = async (req, res) => {
   const { id } = req.params;
   try {
@@ -31,6 +33,7 @@ exports.getMentorById = async (req, res) => {
   }
 };
 
+// Tambah mentor
 exports.tambahMentor = async (req, res) => {
   const { username, email, password, domisili, tanggal_lahir, alamat } = req.body;
   const foto = req.file ? req.file.filename : 'default-avatar.png';
@@ -42,14 +45,12 @@ exports.tambahMentor = async (req, res) => {
   try {
     const [existing] = await db.query('SELECT id FROM users WHERE email = ?', [email]);
     if (existing.length > 0) {
-      return res.status(400).json({ message: 'Email sudah digunakan' });
+      return res.status(409).json({ message: 'Email sudah digunakan' });
     }
 
     await db.query(
-      `
-      INSERT INTO users (username, email, password, alamat, domisili, tanggal_lahir, foto, role)
-      VALUES (?, ?, ?, ?, ?, ?, ?, 'mentor')
-    `,
+      `INSERT INTO users (username, email, password, alamat, domisili, tanggal_lahir, foto, role)
+       VALUES (?, ?, ?, ?, ?, ?, ?, 'mentor')`,
       [username, email, password, alamat, domisili, tanggal_lahir, foto]
     );
 
@@ -60,6 +61,7 @@ exports.tambahMentor = async (req, res) => {
   }
 };
 
+// Update mentor
 exports.updateMentor = async (req, res) => {
   const { id } = req.params;
   const { username, email, alamat, domisili, tanggal_lahir } = req.body;
@@ -88,9 +90,9 @@ exports.updateMentor = async (req, res) => {
 
     await db.query(query, params);
 
-    // Hapus foto lama jika ada foto baru & bukan default
+    // Hapus foto lama jika ada foto baru dan bukan default
     if (fotoBaru && mentorLama.foto && mentorLama.foto !== 'default-avatar.png') {
-      const pathFotoLama = `./uploads/${mentorLama.foto}`;
+      const pathFotoLama = path.join(__dirname, '..', 'uploads', mentorLama.foto);
       if (fs.existsSync(pathFotoLama)) {
         fs.unlinkSync(pathFotoLama);
       }
@@ -98,11 +100,12 @@ exports.updateMentor = async (req, res) => {
 
     res.json({ message: 'Mentor berhasil diperbarui' });
   } catch (err) {
-    console.error('Gagal edit mentor:', err);
+    console.error('Gagal update mentor:', err);
     res.status(500).json({ message: 'Gagal mengupdate mentor' });
   }
 };
 
+// Hapus mentor
 exports.deleteMentor = async (req, res) => {
   const { id } = req.params;
 
@@ -116,14 +119,17 @@ exports.deleteMentor = async (req, res) => {
     }
 
     const foto = result[0].foto;
+
+    // Hapus foto jika bukan default
     if (foto && foto !== 'default-avatar.png') {
-      const pathFoto = `./uploads/${foto}`;
+      const pathFoto = path.join(__dirname, '..', 'uploads', foto);
       if (fs.existsSync(pathFoto)) {
         fs.unlinkSync(pathFoto);
       }
     }
 
     await db.query('DELETE FROM users WHERE id = ? AND role = "mentor"', [id]);
+
     res.json({ message: 'Mentor berhasil dihapus' });
   } catch (err) {
     console.error('Gagal hapus mentor:', err);

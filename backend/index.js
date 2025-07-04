@@ -8,6 +8,7 @@ const userRoutes = require('./routes/userRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const kelasRoutes = require('./routes/kelasRoutes');
 const mentorRoutes = require('./routes/mentorRoutes');
+const komentarRoutes = require('./routes/komentarRoutes');
 
 const app = express();
 const PORT = 5000;
@@ -31,6 +32,7 @@ app.use('/api', userRoutes);
 app.use('/api', adminRoutes);
 app.use('/api', kelasRoutes);
 app.use('/api', mentorRoutes);
+app.use('/api', komentarRoutes);
 
 // Start server
 app.listen(PORT, () => {

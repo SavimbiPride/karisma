@@ -6,17 +6,16 @@ export default function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
   const [username, setUsername] = useState('User');
-  const [foto, setFoto] = useState('');
+  const [foto, setFoto] = useState('default-avatar.png');
 
   const loadProfileData = () => {
     const token = localStorage.getItem('token');
-    const user = localStorage.getItem('username');
-    const photo = localStorage.getItem('foto') || 'default-avatar.png';
+    const userData = JSON.parse(localStorage.getItem('user'));
 
-    if (token) {
+    if (token && userData) {
       setIsLogin(true);
-      setUsername(user || 'User');
-      setFoto(photo);
+      setUsername(userData.username || 'User');
+      setFoto(userData.foto || 'default-avatar.png');
     } else {
       setIsLogin(false);
     }
@@ -39,8 +38,7 @@ export default function Navbar() {
   const handleLogout = () => {
     setMenuOpen(false);
     localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('foto');
+    localStorage.removeItem('user');
     navigate('/login');
   };
 
@@ -58,9 +56,12 @@ export default function Navbar() {
       <div className="relative">
         {isLogin ? (
           <div className="relative flex items-center gap-2">
-            <button onClick={() => setMenuOpen(!menuOpen)} className="flex items-center gap-2 bg-blue-950 rounded-2xl p-2 w-28 cursor-pointer">
+            <button
+              onClick={() => setMenuOpen(!menuOpen)}
+              className="flex items-center gap-2 bg-blue-950 rounded-2xl p-2 w-35 cursor-pointer"
+            >
               <img
-                src={`http://localhost:5000/uploads/${foto}?t=${Date.now()}`} // tambahkan timestamp
+                src={`http://localhost:5000/uploads/${foto}?t=${Date.now()}`}
                 alt="Profile"
                 onError={(e) => {
                   e.target.onerror = null;
@@ -68,12 +69,11 @@ export default function Navbar() {
                 }}
                 className="w-10 h-10 rounded-full object-cover border border-gray-300"
               />
-
-              <span className="text-white font-semibold">{username}</span>
+              <span className="text-white font-semibold truncate">{username}</span>
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 top-10 mt-2 w-40 bg-blue-950 border rounded-2x1 shadow-lg z-10">
+              <div className="absolute right-0 top-10 mt-2 w-40 bg-blue-950 border rounded-xl shadow-lg z-10">
                 <button
                   onClick={handleProfile}
                   className="w-full text-left px-4 py-2 hover:bg-gray-600 cursor-pointer bg-blue-950 text-white"
@@ -94,7 +94,7 @@ export default function Navbar() {
             onClick={() => navigate('/login')}
             className="bg-blue-950 text-white px-4 py-2 rounded-md cursor-pointer hover:bg-gray-600"
           >
-          <strong>Login</strong>
+            <strong>Login</strong>
           </button>
         )}
       </div>

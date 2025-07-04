@@ -19,6 +19,8 @@ const EditProfile = () => {
   const [notifVisible, setNotifVisible] = useState(false);
   const [notifMessage, setNotifMessage] = useState('');
   const navigate = useNavigate();
+  const user = JSON.parse(localStorage.getItem('user'));
+  const role = user?.role;
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -41,7 +43,6 @@ const EditProfile = () => {
 
     fetchUser();
 
-    // Cleanup preview object URL
     return () => {
       if (previewPhoto) {
         URL.revokeObjectURL(previewPhoto);
@@ -69,26 +70,31 @@ const EditProfile = () => {
 
     const formData = new FormData();
     Object.entries(form).forEach(([key, value]) => {
-      formData.append(key, value);
+      formData.append(key, value || '');
     });
     if (newPhoto) {
       formData.append('foto', newPhoto);
     }
 
     try {
+      const token = localStorage.getItem('token');
       const response = await axios.post(
         'http://localhost:5000/api/update-profile',
-        formData
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'multipart/form-data',
+          },
+        }
       );
 
-      // Ambil nama file dari response
       if (response.data.foto) {
         localStorage.setItem('foto', response.data.foto);
       }
 
-      localStorage.setItem('username', form.username);
-
-      // Trigger update ke komponen lain (seperti Navbar)
+      const updatedUser = { ...form, foto: response.data.foto || form.foto };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
       window.dispatchEvent(new Event('profileUpdated'));
 
       setNotifMessage('Profil berhasil diperbarui!');
@@ -101,7 +107,6 @@ const EditProfile = () => {
   };
 
   const navigateBack = () => {
-  const role = localStorage.getItem('role');
     if (role === 'admin') {
       navigate('/dashboard');
     } else {
@@ -123,21 +128,27 @@ const EditProfile = () => {
 
       <form
         onSubmit={handleSubmit}
+        encType="multipart/form-data"
         className="bg-white text-black p-6 rounded-lg shadow-md w-full max-w-none grid grid-cols-1 md:grid-cols-2 gap-8"
       >
-        {/* Kolom Foto */}
+        {/* Foto Profil */}
         <div className="flex flex-col items-center justify-center">
           <img
             src={
               previewPhoto
                 ? previewPhoto
-                : form.foto
+                : form.foto && form.foto.trim() !== ''
                 ? `http://localhost:5000/uploads/${form.foto}`
                 : '/default-avatar.png'
             }
-            alt="Preview"
+            alt="Foto Profil"
             className="w-40 h-40 rounded-full mb-4 object-cover shadow-md"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.src = '/default-avatar.png';
+            }}
           />
+
           <input
             type="file"
             accept="image/*"
@@ -146,12 +157,12 @@ const EditProfile = () => {
           />
         </div>
 
-        {/* Kolom Form */}
+        {/* Form Input */}
         <div className="flex flex-col gap-4">
           <label>Username</label>
           <input
             name="username"
-            value={form.username}
+            value={form.username || ''}
             onChange={handleChange}
             className="p-2 border rounded"
           />
@@ -159,7 +170,7 @@ const EditProfile = () => {
           <label>Email</label>
           <input
             name="email"
-            value={form.email}
+            value={form.email || ''}
             onChange={handleChange}
             className="p-2 border rounded"
           />
@@ -192,7 +203,7 @@ const EditProfile = () => {
           <div className="flex gap-4 mt-4">
             <button
               type="submit"
-              className="bg-[#0a0a57] hover:bg-blue-400 text-white px-4 py-2 rounded cursor-pointer "
+              className="bg-[#0a0a57] hover:bg-blue-400 text-white px-4 py-2 rounded cursor-pointer"
             >
               Simpan Perubahan
             </button>
@@ -201,7 +212,7 @@ const EditProfile = () => {
               onClick={navigateBack}
               className="bg-gray-600 hover:bg-gray-800 text-white px-4 py-2 rounded cursor-pointer"
             >
-              Kembali
+              Kembali ke {role === 'admin' ? 'Dashboard' : 'Home'}
             </button>
           </div>
         </div>

@@ -16,9 +16,9 @@ export default function TambahAdmin() {
   });
 
   const [preview, setPreview] = useState(null);
-  const [showNotif, setShowNotif] = useState(false);
-  const [showErrorNotif, setShowErrorNotif] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
+  const [notifSuccess, setNotifSuccess] = useState(false);
+  const [notifGagal, setNotifGagal] = useState(false);
+  const [notifMessage, setNotifMessage] = useState('');
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -32,18 +32,14 @@ export default function TambahAdmin() {
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (formData.password !== formData.konfirmasi) {
-      setErrorMessage('Password dan konfirmasi tidak cocok');
-      setShowErrorNotif(true);
-      setTimeout(() => setShowErrorNotif(false), 3000);
+      setNotifMessage('Password dan konfirmasi tidak cocok');
+      setNotifGagal(true);
       return;
     }
-    setShowNotif(true);
-  };
 
-  const confirmSubmit = async () => {
     try {
       const token = localStorage.getItem('token');
       const data = new FormData();
@@ -54,7 +50,6 @@ export default function TambahAdmin() {
       data.append('domisili', formData.domisili);
       data.append('tanggal_lahir', formData.tanggal_lahir);
       data.append('alamat', formData.alamat);
-
       if (formData.foto) {
         data.append('foto', formData.foto);
       }
@@ -66,36 +61,40 @@ export default function TambahAdmin() {
         },
       });
 
-      localStorage.setItem('notif_admin_ditambahkan', 'true');
-      navigate('/list_admin');
+      setNotifSuccess(true);
     } catch (error) {
       const msg = error.response?.data?.message;
-      setErrorMessage(msg === 'Email sudah digunakan' ? 'Email sudah digunakan!' : 'Gagal menambahkan admin');
-      setShowErrorNotif(true);
-      setTimeout(() => setShowErrorNotif(false), 3000);
+      setNotifMessage(msg === 'Email sudah digunakan' ? 'Email sudah digunakan!' : 'Gagal menambahkan admin');
+      setNotifGagal(true);
     }
   };
 
+  const handleOkSuccess = () => {
+    setNotifSuccess(false);
+    navigate('/list_admin');
+  };
 
-  const cancelSubmit = () => setShowNotif(false);
+  const handleOkGagal = () => setNotifGagal(false);
 
   return (
     <div className="min-h-screen min-w-screen bg-[#0a0a57] flex items-center justify-center relative">
       <div className="bg-white rounded-lg p-10 shadow-md w-[900px]">
         <h2 className="text-black text-2xl font-bold text-center mb-6">Tambah Admin Baru</h2>
 
-        {showNotif && (
+        {notifSuccess && (
           <NotifikasiCustom
-            message="Yakin ingin menyimpan admin baru?"
-            onConfirm={confirmSubmit}
-            onCancel={cancelSubmit}
+            message="Admin berhasil ditambahkan!"
+            onConfirm={handleOkSuccess}
+            singleButton
           />
         )}
 
-        {showErrorNotif && (
-          <div className="absolute top-4 right-4 bg-red-500 text-white px-4 py-2 rounded shadow">
-            {errorMessage}
-          </div>
+        {notifGagal && (
+          <NotifikasiCustom
+            message={notifMessage}
+            onConfirm={handleOkGagal}
+            singleButton
+          />
         )}
 
         <form onSubmit={handleSubmit} className="space-y-4 text-black">
@@ -139,7 +138,7 @@ export default function TambahAdmin() {
 
           <div>
             <label className="block font-semibold mb-1">Foto Profil</label>
-            <input type="file" name="foto" accept="image/*" onChange={handleChange} className="cursor-pointer border p-2 w-full rounded"/>
+            <input type="file" name="foto" accept="image/*" onChange={handleChange} className="cursor-pointer border p-2 w-full rounded" />
             {preview && (
               <img src={preview} alt="Preview" className="mt-2 w-28 h-28 rounded-full object-cover border" />
             )}
