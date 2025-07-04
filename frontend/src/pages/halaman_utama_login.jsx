@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const instructors = [
   {
@@ -30,6 +30,7 @@ const instructors = [
 
 export default function HomePage() {
   const [startIndex, setStartIndex] = useState(0);
+  const navigate = useNavigate();
 
   const handleNext = () => {
     if (startIndex + 2 < instructors.length) {
@@ -85,10 +86,10 @@ export default function HomePage() {
 
           {/* Tombol di kiri */}
           <div className="flex gap-4">
-            <button onClick={()=> Navigate('/kelas_saya')} className="bg-gradient-to-r from-purple-500 to-indigo-700 text-white font-semibold py-2 px-6 rounded-xl mb-4 w-fit">
+            <button onClick={()=> navigate('/kelas_saya')} className="bg-gradient-to-r from-purple-500 to-indigo-700 text-white font-semibold py-2 px-6 rounded-xl mb-4 cursor-pointer">
               Kelas saya
             </button>
-            <button onClick={()=> Navigate('/daftar_kelas')} className="bg-gradient-to-r from-purple-500 to-indigo-700 text-white font-semibold py-2 px-6 rounded-xl mb-4 w-fit">
+            <button onClick={()=> navigate('/daftar_kelas')} className="bg-gradient-to-r from-purple-500 to-indigo-700 text-white font-semibold py-2 px-6 rounded-xl mb-4 cursor-pointer">
               Daftar kelas
             </button>
           </div>

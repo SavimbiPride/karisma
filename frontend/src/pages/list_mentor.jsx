@@ -152,13 +152,13 @@ export default function ListMentor() {
                     <td className="flex justify-center gap-2 py-2">
                       <button
                         onClick={() => navigate(`/EditMentor/${mentor.id}`)}
-                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded"
+                        className="bg-yellow-500 hover:bg-yellow-600 text-white px-2 py-1 rounded cursor-pointer"
                       >
                         <FaEdit />
                       </button>
                       <button
                         onClick={() => handleDeleteClick(mentor)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
+                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded cursor-pointer"
                       >
                         <FaTrash />
                       </button>

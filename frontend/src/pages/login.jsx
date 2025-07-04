@@ -14,23 +14,30 @@ export default function Login() {
     try {
       const res = await axios.post('http://localhost:5000/api/login', { email, password });
 
+      // Simpan seluruh user login ke localStorage
+      const userData = {
+        id: res.data.id,
+        username: res.data.username,
+        role: res.data.role,
+        foto: res.data.foto,
+        token: res.data.token
+      };
+
       localStorage.setItem('token', res.data.token);
-      localStorage.setItem('username', res.data.username);
-      localStorage.setItem('role', res.data.role);
-      localStorage.setItem('foto', res.data.foto);
+      localStorage.setItem('user', JSON.stringify(userData));
 
-      if (res.data.role === 'admin') {
-        navigate('/dashboard');
-      } else {
-        navigate('/home');
-      }
-
+      // Tampilkan notif sukses login
       setNotif({
         show: true,
         message: 'Login berhasil!',
         onConfirm: () => {
-          setNotif({ ...notif, show: false });
-          navigate('/home');
+          setNotif({ show: false, message: '', onConfirm: null });
+
+          if (res.data.role === 'admin') {
+            navigate('/dashboard');
+          } else {
+            navigate('/home');
+          }
         }
       });
     } catch (err) {
@@ -41,7 +48,6 @@ export default function Login() {
       });
     }
   };
-
 
   return (
     <>
@@ -77,9 +83,7 @@ export default function Login() {
                 className="text-black peer w-full border-2 border-[#0A0A57] rounded-xl px-4 pt-6 pb-2"
                 required
               />
-              <label className="absolute left-4 top-2 text-gray-500 text-sm">
-                Email
-              </label>
+              <label className="absolute left-4 top-2 text-gray-500 text-sm">Email</label>
             </div>
 
             <div className="relative w-full">
@@ -91,9 +95,7 @@ export default function Login() {
                 className="text-black peer w-full border-2 border-[#0A0A57] rounded-xl px-4 pt-6 pb-2"
                 required
               />
-              <label className="absolute left-4 top-2 text-gray-500 text-sm">
-                Password
-              </label>
+              <label className="absolute left-4 top-2 text-gray-500 text-sm">Password</label>
             </div>
 
             <div className="flex justify-end">

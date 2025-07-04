@@ -13,23 +13,22 @@ export default function TambahKelas() {
   const [previewFotoPengajar, setPreviewFotoPengajar] = useState('');
   const [gambarKelas, setGambarKelas] = useState('');
   const [previewGambarKelas, setPreviewGambarKelas] = useState('');
-  const [tools, setTools] = useState([{ judul: '', deskripsi: '', image: '', preview: '' }]);
+  const [tools, setTools] = useState([{ judul: '', deskripsi: '', image: null, preview: '' }]);
   const [sesi, setSesi] = useState([
     {
       judul: '',
       topik: '',
-      video: '',
+      video: null,
       preview: '',
       tugas: '',
       quiz: {
         soal: '',
         jawaban: ['', '', '', ''],
-        benar: '',
+        benar: 0,
       },
     },
   ]);
   const [mentors, setMentors] = useState([]);
-
   const [notifSuccess, setNotifSuccess] = useState(false);
   const [notifGagal, setNotifGagal] = useState(false);
   const [notifMessage, setNotifMessage] = useState('');
@@ -39,7 +38,7 @@ export default function TambahKelas() {
     const fetchMentors = async () => {
       try {
         const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:5000/api/mentor', {
+        const res = await axios.get('http://localhost:5000/api/list-mentor', {
           headers: { Authorization: `Bearer ${token}` },
         });
         setMentors(res.data);
@@ -57,17 +56,26 @@ export default function TambahKelas() {
     setPreviewFotoPengajar(`http://localhost:5000/uploads/${selected.foto}`);
   };
 
+  const formatRupiah = (angka) => {
+    const str = angka.toString().replace(/\D/g, '');
+    return str.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+  };
+
+  const parseRupiah = (str) => {
+    return parseInt(str.replace(/\./g, ''), 10) || 0;
+  };
+
+  const handleHargaChange = (e) => {
+    const input = e.target.value;
+    const cleaned = input.replace(/\D/g, '');
+    const formatted = formatRupiah(cleaned);
+    setHarga(formatted);
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (
-      judul.trim() === '' ||
-      deskripsi.trim() === '' ||
-      harga.trim() === '' ||
-      namaPengajar.trim() === '' ||
-      !previewFotoPengajar ||
-      !gambarKelas
-    ) {
+    if (!judul || !deskripsi || !harga || !namaPengajar || !previewFotoPengajar || !gambarKelas) {
       setNotifMessage('Harap lengkapi semua field ya :3');
       setNotifGagal(true);
       return;
@@ -76,39 +84,34 @@ export default function TambahKelas() {
     const formData = new FormData();
     formData.append('judul', judul);
     formData.append('deskripsi', deskripsi);
-    formData.append('harga', harga);
+    formData.append('harga', parseRupiah(harga));
     formData.append('nama_pengajar', namaPengajar);
     formData.append('gambar_kelas', gambarKelas);
     formData.append('foto_pengajar_url', previewFotoPengajar);
+    formData.append('tools', JSON.stringify(tools.map(({ judul, deskripsi }) => ({ judul, deskripsi }))));
 
-    formData.append('tools', JSON.stringify(
-      tools.map(({ judul, deskripsi }) => ({ judul, deskripsi }))
-    ));
-
-    tools.forEach(tool => {
-      if (tool.image) {
-        formData.append('tools_images', tool.image);
+    formData.append('sesi', JSON.stringify(sesi.map(s => ({
+      judul: s.judul,
+      topik: s.topik,
+      tugas: s.tugas,
+      quiz: {
+        soal: s.quiz.soal,
+        jawaban: s.quiz.jawaban,
+        benar: s.quiz.benar
       }
+    }))));
+
+    tools.forEach((tool, i) => {
+      if (tool.image) formData.append(`tools_image_${i}`, tool.image);
     });
 
-    formData.append('sesi', JSON.stringify(
-      sesi.map(s => ({
-        judul: s.judul,
-        topik: s.topik,
-        tugas: s.tugas,
-        quiz: s.quiz
-      }))
-    ));
-
-    sesi.forEach(s => {
-      if (s.video) {
-        formData.append('sesi_videos', s.video);
-      }
+    sesi.forEach((s, i) => {
+      if (s.video) formData.append(`sesi_video_${i}`, s.video);
     });
 
     try {
       await axios.post('http://localhost:5000/api/kelas', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+        headers: { 'Content-Type': 'multipart/form-data' },
       });
       setNotifSuccess(true);
     } catch (err) {
@@ -123,31 +126,16 @@ export default function TambahKelas() {
     navigate('/list_kelas');
   };
 
-  const handleOkGagal = () => {
-    setNotifGagal(false);
-  };
+  const handleOkGagal = () => setNotifGagal(false);
 
   return (
-    <div className="flex min-h-screen min-w-screen">
+    <div className="flex min-h-screen">
       <main className="flex-1 bg-[#0a0a57] p-8 overflow-auto text-black">
         <div className="bg-white p-6 rounded shadow-md">
           <h2 className="text-2xl font-bold mb-4">Tambah Kelas</h2>
 
-          {notifSuccess && (
-            <NotifikasiCustom
-              message="Kelas berhasil ditambahkan!"
-              onConfirm={handleOkSuccess}
-              singleButton={true}
-            />
-          )}
-
-          {notifGagal && (
-            <NotifikasiCustom
-              message={notifMessage}
-              onConfirm={handleOkGagal}
-              singleButton={true}
-            />
-          )}
+          {notifSuccess && <NotifikasiCustom message="Kelas berhasil ditambahkan!" onConfirm={handleOkSuccess} singleButton />}
+          {notifGagal && <NotifikasiCustom message={notifMessage} onConfirm={handleOkGagal} singleButton />}
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <label>Judul Kelas</label>
@@ -157,20 +145,16 @@ export default function TambahKelas() {
             <input type="text" value={deskripsi} onChange={(e) => setDeskripsi(e.target.value)} className="border p-2 w-full rounded" />
 
             <label>Harga Kelas</label>
-            <input type="number" value={harga} onChange={(e) => setHarga(e.target.value)} className="border p-2 w-full rounded" />
+            <input type="text" value={harga} onChange={handleHargaChange} className="border p-2 w-full rounded" />
 
             <label>Nama Pengajar</label>
             <select value={namaPengajar} onChange={handleMentorChange} className="border p-2 w-full rounded">
               <option value="">-- Pilih Mentor --</option>
-              {mentors.map((m, idx) => (
-                <option key={`mentor-${idx}`} value={m.username}>{m.username}</option>
-              ))}
+              {mentors.map((m, idx) => <option key={idx} value={m.username}>{m.username}</option>)}
             </select>
 
             <label>Foto Pengajar</label>
-            {previewFotoPengajar && (
-              <img src={previewFotoPengajar} alt="Preview Pengajar" className="w-32 h-32 object-cover rounded mt-2 border" />
-            )}
+            {previewFotoPengajar && <img src={previewFotoPengajar} alt="Preview Pengajar" className="w-32 h-32 object-cover rounded mt-2 border" />}
 
             <label>Gambar Kelas</label>
             <input type="file" accept="image/*" onChange={(e) => {
@@ -178,13 +162,11 @@ export default function TambahKelas() {
               setGambarKelas(file);
               setPreviewGambarKelas(URL.createObjectURL(file));
             }} className="cursor-pointer border p-2 w-full rounded" />
-            {previewGambarKelas && (
-              <img src={previewGambarKelas} alt="Preview Gambar Kelas" className="w-48 h-28 object-cover rounded border mt-2" />
-            )}
+            {previewGambarKelas && <img src={previewGambarKelas} alt="Preview Gambar Kelas" className="w-48 h-28 object-cover rounded border mt-2" />}
 
             <h3 className="text-lg font-semibold">Tools</h3>
             {tools.map((tool, i) => (
-              <div key={`tool-${i}`} className="border p-3 space-y-2 rounded">
+              <div key={i} className="border p-3 space-y-2 rounded">
                 <label>Judul Tools</label>
                 <input type="text" value={tool.judul} onChange={(e) => {
                   const newTools = [...tools];
@@ -207,27 +189,20 @@ export default function TambahKelas() {
                   newTools[i].preview = URL.createObjectURL(file);
                   setTools(newTools);
                 }} className="border p-2 w-full rounded cursor-pointer" />
-                {tool.preview && (
-                  <img src={tool.preview} alt="Preview Tool" className="w-32 h-32 object-cover rounded" />
-                )}
-                <button
-                  type="button"
-                  onClick={() => {
-                    const newTools = [...tools];
-                    newTools.splice(i, 1);
-                    setTools(newTools);
-                  }}
-                  className="bg-red-500 text-white px-3 py-1 rounded"
-                >
-                  Hapus Tool
-                </button>
+                {tool.preview && <img src={tool.preview} alt="Preview Tool" className="w-32 h-32 object-cover rounded" />}
+
+                <button type="button" onClick={() => {
+                  const newTools = [...tools];
+                  newTools.splice(i, 1);
+                  setTools(newTools);
+                }} className="bg-red-500 text-white px-3 py-1 rounded">Hapus Tool</button>
               </div>
             ))}
-            <button type="button" onClick={() => setTools([...tools, { judul: '', deskripsi: '', image: '', preview: '' }])} className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2"><FaPlus /> Tambah Tool</button>
+            <button type="button" onClick={() => setTools([...tools, { judul: '', deskripsi: '', image: null, preview: '' }])} className="bg-blue-500 text-white px-4 py-2 rounded flex items-center gap-2"><FaPlus /> Tambah Tool</button>
 
             <h3 className="text-lg font-semibold">Sesi</h3>
             {sesi.map((s, i) => (
-              <div key={`sesi-${i}`} className="border p-3 space-y-2 rounded">
+              <div key={i} className="border p-3 space-y-2 rounded">
                 <label>Judul Sesi</label>
                 <input type="text" value={s.judul} onChange={(e) => {
                   const newSesi = [...sesi];
@@ -249,10 +224,8 @@ export default function TambahKelas() {
                   newSesi[i].video = file;
                   newSesi[i].preview = URL.createObjectURL(file);
                   setSesi(newSesi);
-                }} className="border p-2 w-full rounded cursor-pointer"/>
-                {s.preview && (
-                  <video controls src={s.preview} className="w-150 h-100 rounded mt-2" />
-                )}
+                }} className="border p-2 w-full rounded cursor-pointer" />
+                {s.preview && <video controls src={s.preview} className="w-100 h-56 border rounded mt-2" />}
 
                 <label>Tugas</label>
                 <textarea value={s.tugas} onChange={(e) => {
@@ -269,47 +242,42 @@ export default function TambahKelas() {
                 }} className="border p-2 w-full rounded" />
 
                 {s.quiz.jawaban.map((j, jIndex) => (
-                <div key={`jawaban-${i}-${jIndex}`} className="flex items-center gap-2 mb-1">
-                  <input
-                    type="radio"
-                    name={`jawaban_benar_${i}`}
-                    checked={s.quiz.benar === jIndex}
-                    onChange={() => {
+                  <div key={jIndex} className="flex items-center gap-2 mb-1">
+                    <input type="radio" name={`jawaban_benar_${i}`} checked={s.quiz.benar === jIndex} onChange={() => {
                       const newSesi = [...sesi];
                       newSesi[i].quiz.benar = jIndex;
                       setSesi(newSesi);
-                    }}
-                    className="cursor-pointer"
-                  />
-                  <input
-                    type="text"
-                    value={j}
-                    onChange={(e) => {
+                    }} className="cursor-pointer" />
+                    <input type="text" value={j} onChange={(e) => {
                       const newSesi = [...sesi];
                       newSesi[i].quiz.jawaban[jIndex] = e.target.value;
                       setSesi(newSesi);
-                    }}
-                    placeholder={`Jawaban ${jIndex + 1}`}
-                    className="border p-2 w-full rounded"
-                  />
-                </div>
-              ))}
-              <button
-                type="button"
-                onClick={() => {
+                    }} placeholder={`Jawaban ${jIndex + 1}`} className="border p-2 w-full rounded" />
+                  </div>
+                ))}
+
+                <button type="button" onClick={() => {
                   const newSesi = [...sesi];
                   newSesi.splice(i, 1);
                   setSesi(newSesi);
-                }}
-                className="bg-red-500 text-white px-3 py-1 rounded"
-              >
-                Hapus Sesi
-              </button>
+                }} className="bg-red-500 text-white px-3 py-1 rounded">Hapus Sesi</button>
               </div>
             ))}
-            <button type="button" onClick={() => setSesi([...sesi, {
-              judul: '', topik: '', video: '', preview: '', tugas: '', quiz: { soal: '', jawaban: ['', '', '', ''], benar: '' }
-            }])} className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2"><FaPlus /> Tambah Sesi</button>
+            <button type="button" 
+              onClick={() => setSesi([...sesi, {
+                  judul: '',
+                  topik: '',
+                  video: null,
+                  preview: '',
+                  tugas: '',
+                  quiz: {
+                    soal: '',
+                    jawaban: ['', '', '', ''],
+                    benar: 0
+                  }
+                }])
+              }
+              className="bg-green-500 text-white px-4 py-2 rounded flex items-center gap-2"><FaPlus /> Tambah Sesi</button>
 
             <div className="flex gap-4 mt-6">
               <button type="submit" className="bg-blue-600 text-white px-4 py-2 rounded">Simpan</button>

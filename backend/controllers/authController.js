@@ -1,9 +1,14 @@
 const db = require('../db');
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'sigma_boy';
+const SECRET_KEY = 'MELODIE';
 
+// REGISTER
 exports.register = async (req, res) => {
   const { username, email, password } = req.body;
+
+  if (!username || !email || !password) {
+    return res.status(400).json({ message: 'Semua field harus diisi.' });
+  }
 
   try {
     const [existingUser] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
@@ -23,8 +28,13 @@ exports.register = async (req, res) => {
   }
 };
 
+// LOGIN
 exports.login = async (req, res) => {
   const { email, password } = req.body;
+
+  if (!email || !password) {
+    return res.status(400).json({ message: 'Email dan password harus diisi.' });
+  }
 
   try {
     const [results] = await db.query(
@@ -37,13 +47,17 @@ exports.login = async (req, res) => {
     }
 
     const user = results[0];
+
     const token = jwt.sign(
       { id: user.id, email: user.email, role: user.role },
-      SECRET_KEY
+      SECRET_KEY,
+      { expiresIn: '1d' }
     );
 
-    res.json({
+    res.status(200).json({
+      message: 'Login berhasil',
       token,
+      id: user.id,
       username: user.username,
       role: user.role,
       foto: user.foto || 'default-avatar.png'

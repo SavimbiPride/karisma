@@ -1,6 +1,6 @@
 const db = require('../db');
 const jwt = require('jsonwebtoken');
-const SECRET_KEY = 'sigma_boy';
+const SECRET_KEY = 'MELODIE';
 const fs = require('fs');
 const path = require('path');
 
@@ -78,6 +78,47 @@ exports.getAllUsers = async (req, res) => {
     res.status(500).json({ message: 'Gagal mengambil data user' });
   }
 };
+
+// Ambil 1 user by ID (khusus admin)
+exports.getUserById = async (req, res) => {
+  const { id } = req.params;
+  try {
+    const [result] = await db.query(
+      'SELECT id, username, email, foto FROM users WHERE id = ? AND role = "user"',
+      [id]
+    );
+    if (result.length === 0) return res.status(404).json({ message: 'User tidak ditemukan' });
+    res.json(result[0]);
+  } catch (err) {
+    console.error('Gagal ambil user by ID:', err);
+    res.status(500).json({ message: 'Gagal mengambil user' });
+  }
+};
+
+// Update user oleh admin
+exports.updateUserByAdmin = async (req, res) => {
+  const { id, email, password } = req.body;
+
+  try {
+    // Pastikan user ada dan role-nya user
+    const [cek] = await db.query('SELECT id FROM users WHERE id = ? AND role = "user"', [id]);
+    if (cek.length === 0) {
+      return res.status(404).json({ message: 'User tidak ditemukan' });
+    }
+
+    // Langsung update tanpa validasi password lama
+    await db.query(
+      'UPDATE users SET email = ?, password = ? WHERE id = ? AND role = "user"',
+      [email, password, id]
+    );
+
+    res.json({ message: 'User berhasil diperbarui' });
+  } catch (err) {
+    console.error('Gagal update user oleh admin:', err);
+    res.status(500).json({ message: 'Gagal update user' });
+  }
+};
+
 
 exports.deleteUser = async (req, res) => {
   const userId = req.params.id;

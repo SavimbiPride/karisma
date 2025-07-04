@@ -30,7 +30,7 @@ export default function EditKelas() {
     // Ambil data mentor dari backend
     axios.get('http://localhost:5000/api/list-mentor')
       .then((res) => {
-        setMentorList(res.data); // asumsi: data = [{ nama: '', foto_pengajar_url: '' }, ...]
+        setMentorList(res.data);
       })
       .catch((err) => {
         console.error('Gagal mengambil mentor:', err);
@@ -57,21 +57,23 @@ export default function EditKelas() {
       })));
 
       setSesi((data.sesi || []).map((s) => {
-        const video = Array.isArray(s.video) && s.video.length > 0 ? s.video[0] : null;
-        const tugasText = Array.isArray(s.tugas) && s.tugas.length > 0 ? s.tugas[0].soal_tugas : '';
-        let quizSoal = '', quizJawaban = ['', '', '', ''], quizBenar = null;
-        if (Array.isArray(s.quiz) && s.quiz.length > 0) {
-          quizSoal = s.quiz[0].soal;
-          quizJawaban = s.quiz[0].jawaban.map(j => j.teks);
-          quizBenar = s.quiz[0].jawaban.findIndex(j => j.benar === true);
-        }
+        const videoFile = s.video;
         return {
           judul: s.judul_sesi || '',
           topik: s.topik || '',
-          video: null,
-          preview: video ? `http://localhost:5000/uploads/${video}` : null,
-          tugas: tugasText,
-          quiz: { soal: quizSoal, jawaban: quizJawaban, benar: quizBenar },
+          video: videoFile,
+          preview: videoFile ? `http://localhost:5000/uploads/${videoFile}` : null,
+          tugas: Array.isArray(s.tugas) && s.tugas.length > 0 ? s.tugas[0].soal_tugas : '',
+          quiz: (() => {
+            if (Array.isArray(s.quiz) && s.quiz.length > 0) {
+              return {
+                soal: s.quiz[0].soal,
+                jawaban: s.quiz[0].jawaban.map(j => j.teks),
+                benar: s.quiz[0].jawaban.findIndex(j => j.benar === true),
+              };
+            }
+            return { soal: '', jawaban: ['', '', '', ''], benar: null };
+          })()
         };
       }));
 
@@ -100,6 +102,17 @@ export default function EditKelas() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // ✅ Validasi video setiap sesi harus diisi
+    for (let i = 0; i < sesi.length; i++) {
+      const s = sesi[i];
+      if (!(s.video instanceof File) && !s.preview) {
+        setNotifMessage(`Sesi ke-${i + 1} harus memiliki video!`);
+        setNotifGagal(true);
+        return;
+      }
+    }
+
     try {
       const data = new FormData();
       data.append('judul', form.judul);
@@ -107,6 +120,7 @@ export default function EditKelas() {
       data.append('harga', parseHarga(form.harga));
       data.append('nama_pengajar', form.nama_pengajar);
       data.append('foto_pengajar', form.foto_pengajar);
+
       if (form.image instanceof File) {
         data.append('image', form.image);
       } else {
@@ -116,9 +130,10 @@ export default function EditKelas() {
       const toolsData = tools.map(({ judul, deskripsi, image }) => ({
         judul,
         deskripsi,
-        image: image instanceof File ? null : image,
+        image: image instanceof File ? null : image || undefined
       }));
       data.append('tools', JSON.stringify(toolsData));
+
       tools.forEach((tool, i) => {
         if (tool.image instanceof File) {
           data.append(`tools_image_${i}`, tool.image);
@@ -132,9 +147,13 @@ export default function EditKelas() {
         quiz: s.quiz,
       }));
       data.append('sesi', JSON.stringify(sesiData));
+
       sesi.forEach((s, i) => {
         if (s.video instanceof File) {
           data.append(`sesi_video_${i}`, s.video);
+        } else if (typeof s.video === 'string') {
+          // Kirim nama file lama
+          data.append(`old_sesi_video_${i}`, s.video);
         }
       });
 
@@ -155,7 +174,7 @@ export default function EditKelas() {
     navigate('/list_kelas');
   };
   const handleOkGagal = () => setNotifGagal(false);
-
+  
   return (
     <div className="flex min-h-screen min-w-screen">
       <main className="flex-1 bg-[#0a0a57] p-8 overflow-auto text-black">

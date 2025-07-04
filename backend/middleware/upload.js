@@ -42,14 +42,13 @@ const upload = multer({ storage, fileFilter, limits });
 const uploadKelasFields = () => {
   const fields = [];
   
-  for (let i = 0; i < 2; i++) {
+  for (let i = 0; i < 20; i++) {
     fields.push({ name: `tools_image_${i}`, maxCount: 1 });
     fields.push({ name: `sesi_video_${i}`, maxCount: 1 });
   }
-  console.log('fields', fields);
   fields.push({ name: 'foto_pengajar', maxCount: 1 });
-  fields.push({ name: 'image', maxCount: 1 });
-  
+  fields.push({ name: 'gambar_kelas', maxCount: 1 });
+
   return upload.fields(fields);
 };
 

@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { uploadKelasFields } = require('../middleware/upload'); // GUNAKAN YANG BARU
+const { uploadKelasFields } = require('../middleware/upload');
 
 const {tambahKelas, getListKelas, getKelasById, updateKelas, deleteKelas,} = require('../controllers/kelasController');
 

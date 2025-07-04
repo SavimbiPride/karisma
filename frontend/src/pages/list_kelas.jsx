@@ -9,9 +9,10 @@ export default function ListKelas() {
   const [showNotif, setShowNotif] = useState(false);
   const [kelasToDelete, setKelasToDelete] = useState(null);
   const navigate = useNavigate();
-
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  const totalPages = Math.ceil(kelasList.length / itemsPerPage);
   const indexOfLastItem = currentPage * itemsPerPage;
   const indexOfFirstItem = indexOfLastItem - itemsPerPage;
   const currentKelas = kelasList.slice(indexOfFirstItem, indexOfLastItem);
@@ -98,7 +99,7 @@ export default function ListKelas() {
           <h1 className="text-black text-3xl font-bold mb-2">Manajemen Kelas</h1>
           <button
             onClick={() => navigate('/tambah_kelas')}
-            className="bg-[#000045] hover:bg-[#1a1a80] text-white px-4 py-2 rounded flex items-center gap-2"
+            className="bg-[#000045] hover:bg-[#1a1a80] text-white px-4 py-2 rounded flex items-center gap-2 cursor-pointer"
           >
             <FaPlus /> Tambah Kelas
           </button>
@@ -118,7 +119,7 @@ export default function ListKelas() {
               </tr>
             </thead>
             <tbody>
-              {kelasList.length > 0 ? (
+              {currentKelas.length > 0 ? (
                 currentKelas.map((kelas, index) => (
                   <tr key={kelas.id} className="text-black border-b hover:bg-gray-100">
                     <td className="py-2 px-3">{indexOfFirstItem + index + 1}</td>
@@ -135,7 +136,7 @@ export default function ListKelas() {
                     <td className="py-2">
                       <button
                         onClick={() => navigate(`/detail_kelas/${kelas.id}`)}
-                        className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded"
+                        className="bg-blue-500 hover:bg-blue-600 text-white px-2 py-1 rounded cursor-pointer"
                       >
                         Lihat Detail
                       </button>
@@ -143,13 +144,13 @@ export default function ListKelas() {
                     <td className="py-2 flex justify-center gap-2">
                       <button
                         onClick={() => navigate(`/edit_kelas/${kelas.id}`)}
-                        className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded"
+                        className="bg-yellow-400 hover:bg-yellow-500 text-white px-2 py-1 rounded cursor-pointer"
                       >
                         <FaEdit />
                       </button>
                       <button
                         onClick={() => handleDeleteClick(kelas)}
-                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded"
+                        className="bg-red-500 hover:bg-red-600 text-white px-2 py-1 rounded cursor-pointer"
                       >
                         <FaTrash />
                       </button>
@@ -167,22 +168,40 @@ export default function ListKelas() {
           </table>
         </div>
 
+        {/* Pagination */}
         <div className="flex justify-end mt-4 pr-1 text-sm">
           <div className="flex items-center gap-2">
+            {/* Tombol < */}
             <span
-              className={`text-black cursor-pointer ${currentPage === 1 ? 'opacity-50 pointer-events-none' : ''}`}
+              className={`text-black font-semibold cursor-pointer ${
+                currentPage === 1 ? 'opacity-50 pointer-events-none' : ''
+              }`}
               onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
             >
               &lt;
             </span>
-            <span className="bg-[#000045] text-white px-2 py-1 rounded">{currentPage}</span>
+
+            {/* Nomor halaman */}
+            {Array.from({ length: totalPages }, (_, i) => (
+              <span
+                key={i + 1}
+                onClick={() => setCurrentPage(i + 1)}
+                className={`px-2 py-1 rounded cursor-pointer ${
+                  currentPage === i + 1
+                    ? 'bg-[#000045] text-white'
+                    : 'bg-gray-200 text-black hover:bg-gray-300'
+                }`}
+              >
+                {i + 1}
+              </span>
+            ))}
+
+            {/* Tombol > */}
             <span
-              className={`text-black cursor-pointer ${indexOfLastItem >= kelasList.length ? 'opacity-50 pointer-events-none' : ''}`}
-              onClick={() => {
-                if (indexOfLastItem < kelasList.length) {
-                  setCurrentPage((prev) => prev + 1);
-                }
-              }}
+              className={`text-black font-semibold cursor-pointer ${
+                currentPage === totalPages ? 'opacity-50 pointer-events-none' : ''
+              }`}
+              onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
             >
               &gt;
             </span>
